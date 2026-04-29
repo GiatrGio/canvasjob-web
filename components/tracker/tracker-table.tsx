@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { Columns3, ExternalLink, Search, Table2 } from "lucide-react";
+import { Check, Columns3, ExternalLink, GripVertical, Search, Table2, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<TrackerView>("board");
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverStatus, setDragOverStatus] = useState<ApplicationStatus | null>(null);
 
   // Counts per status (from the unfiltered list) so the pills always show the
   // full picture, regardless of the active filter.
@@ -56,6 +57,19 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
       );
     });
   }, [items, filter, query, view]);
+
+  async function deleteItem(id: string) {
+    const prev = items;
+    setItems((cur) => cur.filter((it) => it.id !== id));
+    try {
+      await api.applications.delete(id);
+      toast.success("Removed.");
+      router.refresh();
+    } catch (err) {
+      setItems(prev);
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
+  }
 
   async function updateStatus(id: string, next: ApplicationStatus) {
     const current = items.find((i) => i.id === id);
@@ -171,18 +185,21 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
                       {formatDistanceToNow(new Date(it.updated_at), { addSuffix: true })}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      {it.url ? (
-                        <a
-                          href={it.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label="Open original posting"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      ) : null}
+                      <div className="flex items-center justify-end gap-1">
+                        {it.url ? (
+                          <a
+                            href={it.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label="Open original posting"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                        ) : null}
+                        <DeleteConfirmButton onConfirm={() => deleteItem(it.id)} />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -204,9 +221,15 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
         <KanbanBoard
           items={visible}
           draggingId={draggingId}
+          dragOverStatus={dragOverStatus}
           onDragStart={setDraggingId}
-          onDragEnd={() => setDraggingId(null)}
+          onDragEnd={() => {
+            setDraggingId(null);
+            setDragOverStatus(null);
+          }}
+          onDragOverColumn={setDragOverStatus}
           onStatusChange={updateStatus}
+          onDelete={deleteItem}
         />
       )}
     </div>
@@ -245,15 +268,21 @@ function ViewButton({
 function KanbanBoard({
   items,
   draggingId,
+  dragOverStatus,
   onDragStart,
   onDragEnd,
+  onDragOverColumn,
   onStatusChange,
+  onDelete,
 }: {
   items: ApplicationListItem[];
   draggingId: string | null;
+  dragOverStatus: ApplicationStatus | null;
   onDragStart: (id: string) => void;
   onDragEnd: () => void;
+  onDragOverColumn: (status: ApplicationStatus | null) => void;
   onStatusChange: (id: string, next: ApplicationStatus) => void;
+  onDelete: (id: string) => void;
 }) {
   const byStatus = useMemo(() => {
     const grouped: Record<ApplicationStatus, ApplicationListItem[]> = {
@@ -272,8 +301,15 @@ function KanbanBoard({
     return grouped;
   }, [items]);
 
+  const isDragging = draggingId !== null;
+
   return (
     <div className="space-y-6">
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <GripVertical className="h-3.5 w-3.5" />
+        Drag a card between columns to update its status.
+      </p>
+
       <div className="grid gap-3 lg:grid-cols-4">
         {ACTIVE_STATUSES.map((status) => (
           <KanbanColumn
@@ -281,9 +317,13 @@ function KanbanBoard({
             status={status}
             items={byStatus[status]}
             draggingId={draggingId}
+            isDragging={isDragging}
+            isOver={dragOverStatus === status}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
+            onDragOverColumn={onDragOverColumn}
             onStatusChange={onStatusChange}
+            onDelete={onDelete}
           />
         ))}
       </div>
@@ -299,9 +339,13 @@ function KanbanBoard({
               status={status}
               items={byStatus[status]}
               draggingId={draggingId}
+              isDragging={isDragging}
+              isOver={dragOverStatus === status}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
+              onDragOverColumn={onDragOverColumn}
               onStatusChange={onStatusChange}
+              onDelete={onDelete}
               closed
             />
           ))}
@@ -315,26 +359,46 @@ function KanbanColumn({
   status,
   items,
   draggingId,
+  isDragging,
+  isOver,
   onDragStart,
   onDragEnd,
+  onDragOverColumn,
   onStatusChange,
+  onDelete,
   closed = false,
 }: {
   status: ApplicationStatus;
   items: ApplicationListItem[];
   draggingId: string | null;
+  isDragging: boolean;
+  isOver: boolean;
   onDragStart: (id: string) => void;
   onDragEnd: () => void;
+  onDragOverColumn: (status: ApplicationStatus | null) => void;
   onStatusChange: (id: string, next: ApplicationStatus) => void;
+  onDelete: (id: string) => void;
   closed?: boolean;
 }) {
   return (
     <section
       className={cn(
-        "flex min-h-80 flex-col rounded-md border bg-card",
+        "flex min-h-80 flex-col rounded-md border bg-card transition-all",
         closed && "bg-background/70",
+        isDragging && "border-dashed",
+        isOver && "border-solid border-primary bg-primary/5 ring-2 ring-primary/40",
       )}
-      onDragOver={(event) => event.preventDefault()}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        if (!isOver) onDragOverColumn(status);
+      }}
+      onDragLeave={(event) => {
+        // Only clear when the cursor leaves the column itself, not when it
+        // crosses into a child element.
+        if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+        onDragOverColumn(null);
+      }}
       onDrop={(event) => {
         event.preventDefault();
         const id = event.dataTransfer.getData("text/plain") || draggingId;
@@ -358,11 +422,19 @@ function KanbanColumn({
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             onStatusChange={onStatusChange}
+            onDelete={onDelete}
           />
         ))}
         {items.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center rounded-md border border-dashed px-3 py-8 text-center text-xs text-muted-foreground">
-            No jobs
+          <div
+            className={cn(
+              "flex flex-1 items-center justify-center rounded-md border border-dashed px-3 py-8 text-center text-xs transition-colors",
+              isOver
+                ? "border-primary bg-primary/5 text-primary"
+                : "text-muted-foreground",
+            )}
+          >
+            {isOver ? "Drop to move here" : isDragging ? "Drop here" : "No jobs"}
           </div>
         ) : null}
       </div>
@@ -376,12 +448,14 @@ function KanbanCard({
   onDragStart,
   onDragEnd,
   onStatusChange,
+  onDelete,
 }: {
   item: ApplicationListItem;
   dragging: boolean;
   onDragStart: (id: string) => void;
   onDragEnd: () => void;
   onStatusChange: (id: string, next: ApplicationStatus) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <article
@@ -393,11 +467,23 @@ function KanbanCard({
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        "rounded-md border bg-background p-3 shadow-sm transition-opacity",
-        dragging && "opacity-50",
+        "group relative cursor-grab select-none rounded-md border bg-background p-3 pl-8 shadow-sm transition-all hover:border-primary/50 hover:shadow-md active:cursor-grabbing",
+        dragging && "rotate-1 opacity-50 shadow-lg",
       )}
+      aria-roledescription="Draggable job card. Drag between columns to change status."
     >
-      <Link href={`/app/jobs/${item.id}`} className="block">
+      <span
+        aria-hidden
+        className="absolute left-1 top-1/2 -translate-y-1/2 text-muted-foreground/50 transition-colors group-hover:text-muted-foreground"
+        title="Drag to move"
+      >
+        <GripVertical className="h-4 w-4" />
+      </span>
+      <Link
+        href={`/app/jobs/${item.id}`}
+        className="block cursor-pointer"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <h3 className="line-clamp-2 text-sm font-medium">{item.title ?? "(untitled)"}</h3>
         <p className="mt-1 text-xs text-muted-foreground">
           {[item.company, item.location].filter(Boolean).join(" · ") || "No company listed"}
@@ -407,17 +493,20 @@ function KanbanCard({
         <span className="text-xs text-muted-foreground">
           {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
         </span>
-        {item.url ? (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
-            aria-label="Open original posting"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </a>
-        ) : null}
+        <div className="flex items-center gap-1">
+          {item.url ? (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+              aria-label="Open original posting"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          ) : null}
+          <DeleteConfirmButton size="sm" onConfirm={() => onDelete(item.id)} />
+        </div>
       </div>
       <div className="mt-3">
         <StatusSelect
@@ -461,6 +550,103 @@ function FilterPill({
         {count}
       </span>
     </button>
+  );
+}
+
+function DeleteConfirmButton({
+  onConfirm,
+  size = "md",
+}: {
+  onConfirm: () => void;
+  size?: "sm" | "md";
+}) {
+  const [confirming, setConfirming] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!confirming) return;
+    function dismissOnOutside(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setConfirming(false);
+      }
+    }
+    function dismissOnEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setConfirming(false);
+    }
+    document.addEventListener("pointerdown", dismissOnOutside);
+    document.addEventListener("keydown", dismissOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", dismissOnOutside);
+      document.removeEventListener("keydown", dismissOnEscape);
+    };
+  }, [confirming]);
+
+  const trigger = size === "sm" ? "h-7 w-7" : "h-8 w-8";
+  const action = size === "sm" ? "h-6 w-6" : "h-7 w-7";
+
+  return (
+    <div ref={containerRef} className="relative inline-flex">
+      <button
+        type="button"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          setConfirming((c) => !c);
+        }}
+        className={cn(
+          "inline-flex items-center justify-center rounded-md transition-colors",
+          trigger,
+          confirming
+            ? "bg-destructive/10 text-destructive"
+            : "text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
+        )}
+        aria-label="Remove from tracker"
+        aria-expanded={confirming}
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+      {confirming ? (
+        <div
+          className="absolute right-full top-1/2 z-20 mr-1 flex -translate-y-1/2 items-center gap-0.5 whitespace-nowrap rounded-md border border-destructive/40 bg-background px-1 py-0.5 shadow-md"
+          role="group"
+          aria-label="Confirm removal"
+        >
+          <span className="px-1 text-xs font-medium text-destructive">Delete?</span>
+          <button
+            type="button"
+            autoFocus
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setConfirming(false);
+              onConfirm();
+            }}
+            className={cn(
+              "inline-flex items-center justify-center rounded-sm bg-destructive text-destructive-foreground transition-colors hover:bg-destructive/90",
+              action,
+            )}
+            aria-label="Confirm delete"
+          >
+            <Check className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setConfirming(false);
+            }}
+            className={cn(
+              "inline-flex items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+              action,
+            )}
+            aria-label="Cancel"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

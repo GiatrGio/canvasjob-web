@@ -2,9 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Refreshes the Supabase auth cookie on every request. Without this,
- * server-rendered pages would see stale sessions and the route guard in
- * app/(app)/layout.tsx would intermittently redirect logged-in users to /login.
+ * Refreshes the Supabase auth cookie on every request and gates /app/* on
+ * authentication. Doing the redirect here (instead of only in the layout)
+ * prevents RSCs under /app from rendering and throwing 401s in parallel with
+ * the layout's redirect — the page never executes when there's no user.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -31,7 +32,15 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Touching getUser() forces a refresh if the access token has expired.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user && request.nextUrl.pathname.startsWith("/app")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
