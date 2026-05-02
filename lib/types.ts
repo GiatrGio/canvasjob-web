@@ -75,5 +75,5 @@ export interface ApplicationUpdateInput {
 export interface MeResponse {
   email: string;
   plan: "free" | "pro";
-  usage: { used: number; limit: number; period: string };
+  usage: { used: number; limit: number; period: string; warning_threshold?: number };
 }
