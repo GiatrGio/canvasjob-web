@@ -1,8 +1,25 @@
 import Link from "next/link";
 import { SignupForm } from "@/components/auth/signup-form";
+import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function SignupPage() {
+type SignupPageProps = {
+  searchParams?: Promise<{ next?: string | string[] }>;
+};
+
+function getSafeNext(value: string | string[] | undefined) {
+  const next = Array.isArray(value) ? value[0] : value;
+  if (!next || !next.startsWith("/") || next.startsWith("//")) {
+    return null;
+  }
+  return next;
+}
+
+export default async function SignupPage({ searchParams }: SignupPageProps) {
+  const params = await searchParams;
+  const next = getSafeNext(params?.next);
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40 px-4">
       <div className="w-full max-w-md">
@@ -16,8 +33,14 @@ export default function SignupPage() {
             <CardTitle>Create your account</CardTitle>
             <CardDescription>Free forever — 200 evaluations / month.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <SignupForm />
+          <CardContent className="space-y-5">
+            <SocialAuthButtons />
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="h-px flex-1 bg-border" />
+              <span>or</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <SignupForm loginHref={loginHref} />
           </CardContent>
         </Card>
       </div>

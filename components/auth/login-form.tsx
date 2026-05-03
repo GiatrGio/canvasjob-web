@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+type LoginFormProps = {
+  signupHref?: string;
+};
+
+export function LoginForm({ signupHref = "/signup" }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,7 +93,7 @@ export function LoginForm() {
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-medium text-foreground hover:underline">
+        <Link href={signupHref} className="font-medium text-foreground hover:underline">
           Sign up
         </Link>
       </p>
