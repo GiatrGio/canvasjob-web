@@ -18,7 +18,7 @@ Marketing site + authenticated dashboard for **canvasjob**. Talks to the FastAPI
 |---|---|---|
 | `/` | public | Marketing landing — placeholder. Real copy + screenshots later. |
 | `/login`, `/signup` | public | Email + password (or magic link). |
-| `/pricing` | public | Free + Pro tiers. Subscribe button is a mock until Stripe lands. |
+| `/pricing` | public | Free + Pro tiers. Pro uses Stripe Checkout and the Stripe Customer Portal. |
 | `/app` | required | **Tracker dashboard** — list of every saved/applied job. |
 | `/app/jobs/[id]` | required | Individual job detail — generic, source-agnostic. |
 | `/app/cv-tailoring` | required | Placeholder for the Pro feature. |

@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SubscribeButton } from "@/components/pricing/subscribe-button";
+import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast";
 
 const FREE_FEATURES = [
   "200 job evaluations / month",
@@ -22,6 +23,7 @@ const PRO_FEATURES = [
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background">
+      <CheckoutStatusToast />
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="font-semibold">
@@ -81,8 +83,9 @@ export default function PricingPage() {
               </div>
               <CardDescription>For active job hunters.</CardDescription>
               <div className="pt-4">
-                <span className="text-4xl font-bold">€5</span>
+                <span className="text-4xl font-bold">€7.99</span>
                 <span className="text-muted-foreground"> / month</span>
+                <p className="mt-1 text-xs text-muted-foreground">VAT included.</p>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -100,8 +103,8 @@ export default function PricingPage() {
         </div>
 
         <p className="mt-10 text-center text-xs text-muted-foreground">
-          Stripe billing isn&apos;t live yet — Subscribe shows a confirmation but
-          doesn&apos;t charge. We&apos;ll email you before turning it on.
+          Secure checkout and billing management are handled by Stripe.
+          Cancelling keeps Pro active until the end of the paid period.
         </p>
       </main>
     </div>

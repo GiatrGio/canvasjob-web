@@ -10,7 +10,7 @@
 - [x] **Project scaffold** — Next.js 15 App Router, React 19, TypeScript, Tailwind v4, hand-rolled shadcn-style components under `components/ui/`. `package.json` pins compatible versions; `tsconfig.json` has the `@/*` path alias.
 - [x] **Auth plumbing** — `lib/supabase/{client,server,middleware}.ts` for browser, server-component, and middleware Supabase clients. `middleware.ts` refreshes the session cookie on every request. The `(app)` route group's layout server-side checks `getUser()` and redirects to `/login` when missing.
 - [x] **API client** — split into `lib/api/{core,server,client}.ts`. `core.ts` defines the typed shape against the FastAPI backend; `server.ts` and `client.ts` differ only in how they fetch the bearer token (server cookie vs. browser session). Server-only via `import "server-only"` so the server module can never be bundled into a client component.
-- [x] **Public pages** — `/` landing placeholder, `/login`, `/signup`, `/pricing` (Free + Pro tiers, mock Subscribe button via `components/pricing/subscribe-button.tsx` that fires a toast).
+- [x] **Public pages** — `/` landing placeholder, `/login`, `/signup`, `/pricing` (Free + Pro tiers, Stripe Checkout entrypoint via `components/pricing/subscribe-button.tsx`).
 - [x] **App shell** — `components/layout/app-shell.tsx` renders the persistent header + sign-out for authenticated routes.
 - [x] **Tracker dashboard** — `app/(app)/app/page.tsx`. Server-rendered initial list, filter pills per status with counts, free-text search, optimistic inline status changes (auto-stamps `applied_at` on transition to Applied), manual `Add job` dialog for sites we don't yet support.
 - [x] **Individual job page** — `app/(app)/app/jobs/[id]/page.tsx`. Source-agnostic UI (no LinkedIn-specific copy), shows full description when present, status + applied date sidebar, debounced autosave for notes, delete with confirmation.
@@ -20,7 +20,7 @@
 ## Not done (explicit non-goals for this pass)
 
 - [ ] **Real Supabase project hookup.** `.env.example` documents the three required env vars; `.env.local` is gitignored. First-run requires filling in real values for the Supabase URL, publishable key, and the FastAPI base URL.
-- [ ] **Stripe billing.** The Subscribe button is a `toast.info(...)` mock. Replace with a Stripe Checkout redirect once the backend exposes a `/billing/checkout` endpoint and the `subscriptions` table exists.
+- [x] **Stripe billing.** `/pricing` starts Stripe Checkout through the backend and Pro users can open the Stripe Customer Portal.
 - [ ] **CV Tailoring functionality.** Page exists; upload + tailor button are placeholders. Needs (a) a CV upload endpoint on the backend (storing in Supabase Storage), (b) a `/cv-tailorings` endpoint that calls the LLM provider.
 - [ ] **Marketing copy on `/`.** Hero + features + screenshots + testimonials all deferred. The route renders a placeholder.
 - [ ] **Extension "Track this job" button.** Backend endpoint `POST /applications` exists; the extension just needs the UI + fetch wiring. Out of scope for this PR but a near-term follow-up.

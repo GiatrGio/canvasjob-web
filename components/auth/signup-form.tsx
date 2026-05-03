@@ -19,10 +19,12 @@ export function SignupForm() {
     e.preventDefault();
     setLoading(true);
     const supabase = createClient();
+    const next = new URLSearchParams(window.location.search).get("next");
+    const redirectPath = next?.startsWith("/") ? next : "/app";
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/app` },
+      options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
     });
     setLoading(false);
     if (error) {
@@ -31,7 +33,7 @@ export function SignupForm() {
     }
     if (data.session) {
       // Email confirmation disabled — Supabase returns a session immediately.
-      router.push("/app");
+      router.push(redirectPath);
       router.refresh();
       return;
     }

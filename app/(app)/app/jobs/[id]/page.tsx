@@ -13,7 +13,13 @@ import { Button } from "@/components/ui/button";
 export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
+    // Fetch the application first so a 404 short-circuits before we kick off
+    // the dependent calls. Then load contacts + interviews in parallel.
     const application = await api.applications.get(id);
+    const [contacts, interviews] = await Promise.all([
+      api.contacts.list(id),
+      api.interviews.list(id),
+    ]);
     return (
       <div className="space-y-6">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
@@ -22,7 +28,11 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
             Back to tracker
           </Link>
         </Button>
-        <JobDetail application={application} />
+        <JobDetail
+          application={application}
+          contacts={contacts}
+          interviews={interviews}
+        />
       </div>
     );
   } catch (err) {

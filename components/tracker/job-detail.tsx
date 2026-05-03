@@ -2,25 +2,45 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { differenceInCalendarDays } from "date-fns";
 import { ExternalLink, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
-import type { Application, ApplicationStatus } from "@/lib/types";
+import type {
+  Application,
+  ApplicationContact,
+  ApplicationInterview,
+  ApplicationStatus,
+} from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ContactsList } from "@/components/tracker/contacts-list";
+import { InterviewSchedule } from "@/components/tracker/interview-schedule";
 import { StatusSelect } from "@/components/tracker/status-select";
 
 const NOTES_AUTOSAVE_MS = 800;
 
-export function JobDetail({ application }: { application: Application }) {
+export function JobDetail({
+  application,
+  contacts,
+  interviews,
+}: {
+  application: Application;
+  contacts: ApplicationContact[];
+  interviews: ApplicationInterview[];
+}) {
   const router = useRouter();
   const [status, setStatus] = useState<ApplicationStatus>(application.status);
   const [appliedAt, setAppliedAt] = useState<string>(
     application.applied_at ? application.applied_at.slice(0, 10) : "",
+  );
+  const [deadlineAt, setDeadlineAt] = useState<string>(
+    application.deadline_at ? application.deadline_at.slice(0, 10) : "",
   );
   const [notes, setNotes] = useState(application.notes ?? "");
   const [savingNotes, setSavingNotes] = useState(false);
@@ -73,6 +93,20 @@ export function JobDetail({ application }: { application: Application }) {
     try {
       await api.applications.update(application.id, {
         applied_at: value ? new Date(value).toISOString() : null,
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
+    }
+  }
+
+  async function handleDeadlineAt(value: string) {
+    setDeadlineAt(value);
+    try {
+      await api.applications.update(application.id, {
+        // End of day in user's local timezone — feels right for a deadline.
+        deadline_at: value
+          ? new Date(`${value}T23:59:59`).toISOString()
+          : null,
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Update failed");
@@ -139,6 +173,11 @@ export function JobDetail({ application }: { application: Application }) {
           </CardContent>
         </Card>
 
+        <InterviewSchedule
+          applicationId={application.id}
+          initial={interviews}
+        />
+
         {application.description ? (
           <Card>
             <CardHeader>
@@ -177,6 +216,18 @@ export function JobDetail({ application }: { application: Application }) {
                 Auto-set when you move to <span className="font-medium">Applied</span>.
               </p>
             </div>
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <Label htmlFor="deadline_at">Application deadline</Label>
+                <DeadlineBadge deadlineAt={deadlineAt} />
+              </div>
+              <Input
+                id="deadline_at"
+                type="date"
+                value={deadlineAt}
+                onChange={(e) => handleDeadlineAt(e.target.value)}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -190,8 +241,16 @@ export function JobDetail({ application }: { application: Application }) {
             {application.applied_at ? (
               <Row label="Applied" value={format(new Date(application.applied_at), "PPP")} />
             ) : null}
+            {application.deadline_at ? (
+              <Row label="Deadline" value={format(new Date(application.deadline_at), "PPP")} />
+            ) : null}
           </CardContent>
         </Card>
+
+        <ContactsList
+          applicationId={application.id}
+          initial={contacts}
+        />
 
         <Button variant="destructive" className="w-full" onClick={handleDelete}>
           <Trash2 className="h-4 w-4" />
@@ -208,5 +267,38 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
+  );
+}
+
+// Soft-warning chip next to the deadline input. Uses calendar-day diff so
+// "tomorrow" reads as "1 day left" regardless of the time of day.
+function DeadlineBadge({ deadlineAt }: { deadlineAt: string }) {
+  if (!deadlineAt) return null;
+  const days = differenceInCalendarDays(new Date(`${deadlineAt}T23:59:59`), new Date());
+  if (days < 0) {
+    return (
+      <Badge variant="rejected" className="text-[10px]">
+        Passed {Math.abs(days)}d ago
+      </Badge>
+    );
+  }
+  if (days === 0) {
+    return (
+      <Badge variant="rejected" className="text-[10px]">
+        Today
+      </Badge>
+    );
+  }
+  if (days <= 3) {
+    return (
+      <Badge variant="interviewing" className="text-[10px]">
+        {days}d left
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="secondary" className="text-[10px]">
+      {days}d left
+    </Badge>
   );
 }

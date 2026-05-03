@@ -147,7 +147,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <p className="mt-3 text-center text-sm text-foreground">
-                canvasjob is <span className="font-semibold">€5/month</span> — and the only tool that decides for you whether a job is even worth reading.
+                canvasjob is <span className="font-semibold">€7.99/month</span> — and the only tool that decides for you whether a job is even worth reading.
               </p>
             </div>
           </div>
@@ -423,7 +423,7 @@ export default function LandingPage() {
                 <tbody className="[&>tr:not(:last-child)]:border-b">
                   <tr>
                     <td className="px-5 py-3 font-medium">Paid plan</td>
-                    <td className="px-5 py-3 font-semibold text-emerald-800">€5/mo</td>
+                    <td className="px-5 py-3 font-semibold text-emerald-800">€7.99/mo</td>
                     <td className="px-5 py-3 text-muted-foreground">$29/mo</td>
                     <td className="px-5 py-3 text-muted-foreground">$40/mo</td>
                     <td className="px-5 py-3 text-muted-foreground">$40/mo</td>

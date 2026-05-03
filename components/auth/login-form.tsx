@@ -25,7 +25,8 @@ export function LoginForm() {
       toast.error(error.message);
       return;
     }
-    router.push("/app");
+    const next = new URLSearchParams(window.location.search).get("next");
+    router.push(next?.startsWith("/") ? next : "/app");
     router.refresh();
   }
 
@@ -36,9 +37,11 @@ export function LoginForm() {
     }
     setLoading(true);
     const supabase = createClient();
+    const next = new URLSearchParams(window.location.search).get("next");
+    const redirectPath = next?.startsWith("/") ? next : "/app";
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/app` },
+      options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
     });
     setLoading(false);
     if (error) {

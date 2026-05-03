@@ -10,9 +10,16 @@
 
 import type {
   Application,
+  ApplicationContact,
+  ApplicationContactCreateInput,
+  ApplicationContactUpdateInput,
   ApplicationCreateInput,
+  ApplicationInterview,
+  ApplicationInterviewCreateInput,
+  ApplicationInterviewUpdateInput,
   ApplicationListItem,
   ApplicationUpdateInput,
+  BillingSession,
   MeResponse,
 } from "@/lib/types";
 
@@ -34,6 +41,22 @@ export interface Api {
     create(body: ApplicationCreateInput): Promise<Application>;
     update(id: string, body: ApplicationUpdateInput): Promise<Application>;
     delete(id: string): Promise<void>;
+  };
+  contacts: {
+    list(applicationId: string): Promise<ApplicationContact[]>;
+    create(applicationId: string, body: ApplicationContactCreateInput): Promise<ApplicationContact>;
+    update(id: string, body: ApplicationContactUpdateInput): Promise<ApplicationContact>;
+    delete(id: string): Promise<void>;
+  };
+  interviews: {
+    list(applicationId: string): Promise<ApplicationInterview[]>;
+    create(applicationId: string, body: ApplicationInterviewCreateInput): Promise<ApplicationInterview>;
+    update(id: string, body: ApplicationInterviewUpdateInput): Promise<ApplicationInterview>;
+    delete(id: string): Promise<void>;
+  };
+  billing: {
+    createCheckoutSession(): Promise<BillingSession>;
+    createPortalSession(): Promise<BillingSession>;
   };
 }
 
@@ -86,6 +109,42 @@ export function makeApi(getToken: TokenGetter): Api {
           body: JSON.stringify(body),
         }),
       delete: (id) => request<void>(`/applications/${id}`, { method: "DELETE" }),
+    },
+    contacts: {
+      list: (applicationId) =>
+        request<ApplicationContact[]>(`/applications/${applicationId}/contacts`),
+      create: (applicationId, body) =>
+        request<ApplicationContact>(`/applications/${applicationId}/contacts`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      update: (id, body) =>
+        request<ApplicationContact>(`/contacts/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        }),
+      delete: (id) => request<void>(`/contacts/${id}`, { method: "DELETE" }),
+    },
+    interviews: {
+      list: (applicationId) =>
+        request<ApplicationInterview[]>(`/applications/${applicationId}/interviews`),
+      create: (applicationId, body) =>
+        request<ApplicationInterview>(`/applications/${applicationId}/interviews`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      update: (id, body) =>
+        request<ApplicationInterview>(`/interviews/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        }),
+      delete: (id) => request<void>(`/interviews/${id}`, { method: "DELETE" }),
+    },
+    billing: {
+      createCheckoutSession: () =>
+        request<BillingSession>("/billing/checkout-session", { method: "POST" }),
+      createPortalSession: () =>
+        request<BillingSession>("/billing/portal-session", { method: "POST" }),
     },
   };
 }
