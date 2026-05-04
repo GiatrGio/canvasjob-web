@@ -15,7 +15,7 @@ type SocialProvider = {
 
 const PROVIDERS: SocialProvider[] = [
   { provider: "google", label: "Continue with Google", icon: Chrome },
-  { provider: "linkedin_oidc", label: "Continue with LinkedIn", icon: Linkedin },
+  // { provider: "linkedin_oidc", label: "Continue with LinkedIn", icon: Linkedin },
 ];
 
 function getRedirectPath() {
