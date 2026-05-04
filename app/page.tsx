@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 
 function ScreenshotPlaceholder({
   label,
@@ -65,12 +66,7 @@ export default function LandingPage() {
             >
               Pricing
             </Link>
-            <Button variant="ghost" asChild size="sm">
-              <Link href="/login">Log in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/signup">Get started</Link>
-            </Button>
+            <SiteHeaderActions signupLabel="Get started" />
           </nav>
         </div>
       </header>

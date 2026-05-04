@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { normalizePlan } from "@/lib/plan";
 import { AppShell } from "@/components/layout/app-shell";
 
 /**
@@ -17,5 +18,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  return <AppShell userEmail={user.email ?? ""}>{children}</AppShell>;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", user.id)
+    .maybeSingle();
+  const plan = normalizePlan(profile?.plan);
+
+  return (
+    <AppShell userEmail={user.email ?? ""} plan={plan}>
+      {children}
+    </AppShell>
+  );
 }

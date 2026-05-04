@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { SubscribeButton } from "@/components/pricing/subscribe-button";
 import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast";
 
@@ -29,13 +30,8 @@ export default function PricingPage() {
           <Link href="/" className="font-semibold">
             canvasjob
           </Link>
-          <nav className="flex items-center gap-3 text-sm">
-            <Button variant="ghost" asChild size="sm">
-              <Link href="/login">Log in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/signup">Sign up</Link>
-            </Button>
+          <nav className="flex items-center gap-2 text-sm sm:gap-3">
+            <SiteHeaderActions />
           </nav>
         </div>
       </header>
@@ -48,8 +44,8 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
-          <Card>
+        <div className="mt-12 grid items-stretch gap-6 md:grid-cols-2">
+          <Card className="flex h-full flex-col">
             <CardHeader>
               <CardTitle>Free</CardTitle>
               <CardDescription>Everything you need to try canvasjob.</CardDescription>
@@ -58,8 +54,8 @@ export default function PricingPage() {
                 <span className="text-muted-foreground"> / month</span>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-2 text-sm">
+            <CardContent className="flex flex-1 flex-col space-y-4">
+              <ul className="flex-1 space-y-2 text-sm">
                 {FREE_FEATURES.map((f) => (
                   <li key={f} className="flex items-start gap-2">
                     <Check className="h-4 w-4 mt-0.5 text-emerald-600" />
@@ -73,7 +69,7 @@ export default function PricingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-primary">
+          <Card className="flex h-full flex-col border-primary">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Pro</CardTitle>
@@ -88,8 +84,8 @@ export default function PricingPage() {
                 <p className="mt-1 text-xs text-muted-foreground">VAT included.</p>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-2 text-sm">
+            <CardContent className="flex flex-1 flex-col space-y-4">
+              <ul className="flex-1 space-y-2 text-sm">
                 {PRO_FEATURES.map((f) => (
                   <li key={f} className="flex items-start gap-2">
                     <Check className="h-4 w-4 mt-0.5 text-emerald-600" />

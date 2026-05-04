@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api, ApiError } from "@/lib/api/client";
+import { normalizePlan, type Plan } from "@/lib/plan";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export function SubscribeButton() {
   const router = useRouter();
-  const [plan, setPlan] = useState<"free" | "pro" | "signed-out" | "loading">("loading");
+  const [plan, setPlan] = useState<Plan | "signed-out" | "loading">("loading");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -24,12 +25,12 @@ export function SubscribeButton() {
         setPlan("signed-out");
         return;
       }
-      try {
-        const me = await api.me();
-        if (alive) setPlan(me.plan === "pro" ? "pro" : "free");
-      } catch {
-        if (alive) setPlan("free");
-      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      if (alive) setPlan(normalizePlan(profile?.plan));
     }
     void loadPlan();
     return () => {
