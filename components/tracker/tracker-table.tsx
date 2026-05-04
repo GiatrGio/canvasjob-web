@@ -3,8 +3,31 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { formatDistanceToNow } from "date-fns";
-import { Check, Columns3, ExternalLink, GripVertical, Search, Table2, Trash2, X } from "lucide-react";
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  formatDistanceToNow,
+  isSameMonth,
+  isToday,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
+import {
+  CalendarDays,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Columns3,
+  ExternalLink,
+  GripVertical,
+  Search,
+  Table2,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -15,15 +38,27 @@ import { StatusSelect } from "@/components/tracker/status-select";
 import {
   APPLICATION_STATUSES,
   STATUS_LABELS,
+  type ApplicationInterview,
   type ApplicationListItem,
   type ApplicationStatus,
 } from "@/lib/types";
 
 type StatusFilter = "all" | ApplicationStatus;
-type TrackerView = "list" | "board";
+type TrackerView = "list" | "board" | "calendar";
+type CalendarEventKind = "applied" | "deadline" | "interview";
+type CalendarEvent = {
+  id: string;
+  kind: CalendarEventKind;
+  date: Date;
+  applicationId: string;
+  primary: string;
+  role: string;
+  company: string;
+};
 
 const ACTIVE_STATUSES: ApplicationStatus[] = ["saved", "applied", "interviewing", "offer"];
 const CLOSED_STATUSES: ApplicationStatus[] = ["rejected", "withdrawn"];
+const WEEK_STARTS_ON = 1 as const;
 
 export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
   const router = useRouter();
@@ -31,6 +66,11 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
   const [view, setView] = useState<TrackerView>("board");
+  const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
+  const [interviewsByApplication, setInterviewsByApplication] = useState<
+    Record<string, ApplicationInterview[]>
+  >({});
+  const [loadingCalendarInterviews, setLoadingCalendarInterviews] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<ApplicationStatus | null>(null);
 
@@ -57,6 +97,48 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
       );
     });
   }, [items, filter, query, view]);
+
+  useEffect(() => {
+    if (view !== "calendar") return;
+
+    const missingIds = items
+      .map((item) => item.id)
+      .filter((id) => interviewsByApplication[id] === undefined);
+    if (missingIds.length === 0) return;
+
+    let cancelled = false;
+    setLoadingCalendarInterviews(true);
+
+    Promise.allSettled(
+      missingIds.map(async (id) => [id, await api.interviews.list(id)] as const),
+    )
+      .then((results) => {
+        if (cancelled) return;
+        const loaded: Record<string, ApplicationInterview[]> = {};
+        let failed = false;
+        for (const result of results) {
+          if (result.status === "fulfilled") {
+            const [id, interviews] = result.value;
+            loaded[id] = interviews;
+          } else {
+            failed = true;
+          }
+        }
+        if (Object.keys(loaded).length > 0) {
+          setInterviewsByApplication((prev) => ({ ...prev, ...loaded }));
+        }
+        if (failed) {
+          toast.error("Some interview dates could not be loaded.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingCalendarInterviews(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [items, interviewsByApplication, view]);
 
   async function deleteItem(id: string) {
     const prev = items;
@@ -111,6 +193,12 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
             icon={<Table2 className="h-4 w-4" />}
             active={view === "list"}
             onClick={() => setView("list")}
+          />
+          <ViewButton
+            label="Calendar"
+            icon={<CalendarDays className="h-4 w-4" />}
+            active={view === "calendar"}
+            onClick={() => setView("calendar")}
           />
         </div>
         <div className="relative w-full sm:ml-auto sm:w-72">
@@ -217,6 +305,16 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
             </table>
           </div>
         </div>
+      ) : view === "calendar" ? (
+        <CalendarView
+          items={visible}
+          interviewsByApplication={interviewsByApplication}
+          loadingInterviews={loadingCalendarInterviews}
+          month={calendarMonth}
+          onPreviousMonth={() => setCalendarMonth((current) => addMonths(current, -1))}
+          onNextMonth={() => setCalendarMonth((current) => addMonths(current, 1))}
+          onToday={() => setCalendarMonth(startOfMonth(new Date()))}
+        />
       ) : (
         <KanbanBoard
           items={visible}
@@ -234,6 +332,266 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
       )}
     </div>
   );
+}
+
+function CalendarView({
+  items,
+  interviewsByApplication,
+  loadingInterviews,
+  month,
+  onPreviousMonth,
+  onNextMonth,
+  onToday,
+}: {
+  items: ApplicationListItem[];
+  interviewsByApplication: Record<string, ApplicationInterview[]>;
+  loadingInterviews: boolean;
+  month: Date;
+  onPreviousMonth: () => void;
+  onNextMonth: () => void;
+  onToday: () => void;
+}) {
+  const days = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(startOfMonth(month), { weekStartsOn: WEEK_STARTS_ON }),
+        end: endOfWeek(endOfMonth(month), { weekStartsOn: WEEK_STARTS_ON }),
+      }),
+    [month],
+  );
+
+  const events = useMemo(
+    () => buildCalendarEvents(items, interviewsByApplication),
+    [items, interviewsByApplication],
+  );
+
+  const eventsByDay = useMemo(() => {
+    const byDay = new Map<string, CalendarEvent[]>();
+    for (const event of events) {
+      const key = format(event.date, "yyyy-MM-dd");
+      const dayEvents = byDay.get(key) ?? [];
+      dayEvents.push(event);
+      byDay.set(key, dayEvents);
+    }
+    return byDay;
+  }, [events]);
+
+  const monthEventCount = events.filter((event) => isSameMonth(event.date, month)).length;
+
+  return (
+    <section className="overflow-hidden rounded-md border bg-card">
+      <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">
+        <h2 className="mr-1 text-xl font-semibold">{format(month, "MMMM yyyy")}</h2>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={onPreviousMonth}
+            aria-label="Previous month"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={onNextMonth}
+            aria-label="Next month"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={onToday}
+          >
+            Today
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground sm:ml-auto">
+          <span>{loadingInterviews ? "Loading interviews..." : `${monthEventCount} events this month`}</span>
+          <CalendarLegendDot className="bg-blue-600" label="Applied" />
+          <CalendarLegendDot className="bg-rose-600" label="Deadline" />
+          <CalendarLegendDot className="bg-amber-600" label="Interview" />
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <div className="min-w-[980px]">
+          <div className="grid grid-cols-7 border-b bg-background text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+              <div key={day} className="border-r px-3 py-2 last:border-r-0">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7">
+            {days.map((day, index) => {
+              const dayEvents = eventsByDay.get(format(day, "yyyy-MM-dd")) ?? [];
+              const shownEvents = dayEvents.slice(0, 2);
+              const hiddenCount = dayEvents.length - shownEvents.length;
+              const currentMonth = isSameMonth(day, month);
+              const isWeekEnd = index % 7 === 6;
+              const isFinalRow = index >= days.length - 7;
+              return (
+                <div
+                  key={day.toISOString()}
+                  className={cn(
+                    "min-h-32 border-b border-r p-2",
+                    isWeekEnd && "border-r-0",
+                    isFinalRow && "border-b-0",
+                    !currentMonth && "bg-muted/30 text-muted-foreground",
+                  )}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span
+                      className={cn(
+                        "inline-flex h-6 w-6 items-center justify-center rounded-full text-sm",
+                        isToday(day) && "bg-primary font-semibold text-primary-foreground",
+                        !isToday(day) && !currentMonth && "text-muted-foreground",
+                      )}
+                    >
+                      {format(day, "d")}
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {shownEvents.map((event) => (
+                      <CalendarEventLink key={event.id} event={event} />
+                    ))}
+                    {hiddenCount > 0 ? (
+                      <div className="rounded-sm border border-dashed bg-muted/40 px-2 py-1 text-xs font-medium text-muted-foreground">
+                        +{hiddenCount} more
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {events.length === 0 ? (
+        <div className="border-t px-4 py-8 text-center text-sm text-muted-foreground">
+          No applied dates, deadlines, or interview dates match this view.
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function CalendarLegendDot({ className, label }: { className: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={cn("h-2.5 w-2.5 rounded-full", className)} />
+      <span>{label}</span>
+    </span>
+  );
+}
+
+function CalendarEventLink({ event }: { event: CalendarEvent }) {
+  return (
+    <Link
+      href={`/app/jobs/${event.applicationId}`}
+      className={cn(
+        "block rounded-md border px-2 py-1.5 text-xs transition-colors hover:shadow-sm",
+        event.kind === "applied" && "border-blue-100 bg-blue-50 text-blue-900 hover:bg-blue-100",
+        event.kind === "deadline" && "border-rose-100 bg-rose-50 text-rose-900 hover:bg-rose-100",
+        event.kind === "interview" && "border-amber-100 bg-amber-50 text-amber-900 hover:bg-amber-100",
+      )}
+    >
+      <span className="flex min-w-0 items-center gap-1.5 font-semibold">
+        <span
+          className={cn(
+            "h-1.5 w-1.5 shrink-0 rounded-full",
+            event.kind === "applied" && "bg-blue-600",
+            event.kind === "deadline" && "bg-rose-600",
+            event.kind === "interview" && "bg-amber-600",
+          )}
+        />
+        <span className="truncate">{event.primary}</span>
+      </span>
+      <span className="mt-0.5 block truncate opacity-80">
+        {event.role} · {event.company}
+      </span>
+    </Link>
+  );
+}
+
+function buildCalendarEvents(
+  items: ApplicationListItem[],
+  interviewsByApplication: Record<string, ApplicationInterview[]>,
+) {
+  const events: CalendarEvent[] = [];
+
+  for (const item of items) {
+    const role = item.title?.trim() || "(untitled)";
+    const company = item.company?.trim() || "No company listed";
+    const appliedAt = parseCalendarDate(item.applied_at);
+    const deadlineAt = parseCalendarDate(item.deadline_at);
+
+    if (appliedAt) {
+      events.push({
+        id: `${item.id}:applied`,
+        kind: "applied",
+        date: appliedAt,
+        applicationId: item.id,
+        primary: "Applied",
+        role,
+        company,
+      });
+    }
+
+    if (deadlineAt) {
+      events.push({
+        id: `${item.id}:deadline`,
+        kind: "deadline",
+        date: deadlineAt,
+        applicationId: item.id,
+        primary: "Deadline",
+        role,
+        company,
+      });
+    }
+
+    for (const interview of interviewsByApplication[item.id] ?? []) {
+      const scheduledAt = parseCalendarDate(interview.scheduled_at);
+      if (!scheduledAt) continue;
+      events.push({
+        id: interview.id,
+        kind: "interview",
+        date: scheduledAt,
+        applicationId: item.id,
+        primary: `${format(scheduledAt, "HH:mm")} · ${interview.title}`,
+        role,
+        company,
+      });
+    }
+  }
+
+  return events.sort((a, b) => {
+    const time = a.date.getTime() - b.date.getTime();
+    if (time !== 0) return time;
+    return eventKindOrder(a.kind) - eventKindOrder(b.kind);
+  });
+}
+
+function parseCalendarDate(value: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function eventKindOrder(kind: CalendarEventKind) {
+  if (kind === "deadline") return 0;
+  if (kind === "interview") return 1;
+  return 2;
 }
 
 function ViewButton({
