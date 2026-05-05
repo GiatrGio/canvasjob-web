@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
+import { HeroIllustration } from "@/components/marketing/hero-illustration";
 
 function ScreenshotPlaceholder({
   label,
@@ -113,10 +114,7 @@ export default function LandingPage() {
             </div>
 
             <div className="mx-auto mt-14 max-w-5xl">
-              <ScreenshotPlaceholder
-                label="Hero shot — LinkedIn job page open with the canvasjob side panel docked on the right, showing a checklist of filter results (✅ Fully remote, ❌ Salary below €6k, ❓ Visa sponsorship not mentioned) and the 'Track this job' button."
-                aspect="16/9"
-              />
+              <HeroIllustration />
             </div>
 
             {/* Comparison strip */}

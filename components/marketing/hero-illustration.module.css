@@ -1,0 +1,421 @@
+/* Outer container: an SVG that scales the 1600x900 viewBox to fit any width */
+.container {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.scene {
+  width: 1600px;
+  height: 900px;
+  position: relative;
+  perspective: 2200px;
+  padding: 60px;
+  background:
+    radial-gradient(1100px 700px at 70% 20%, rgba(16, 185, 129, 0.12), transparent 65%),
+    radial-gradient(900px 500px at 10% 80%, rgba(45, 212, 191, 0.08), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #111;
+  box-sizing: border-box;
+}
+
+.scene *,
+.scene *::before,
+.scene *::after {
+  box-sizing: border-box;
+}
+
+/* Header strip */
+.headerStrip {
+  position: absolute;
+  top: 60px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 0;
+  z-index: 5;
+}
+
+.stripLabel {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.stripLabelLi .dot { background: #0a66c2; }
+.stripLabelCj .dot { background: #10b981; }
+
+/* LinkedIn page */
+.liPage {
+  position: absolute;
+  left: 60px;
+  top: 90px;
+  width: 1100px;
+  height: 740px;
+  background: #f4f2ee;
+  border-radius: 14px;
+  border: 1px solid #e3e1de;
+  overflow: hidden;
+  transform: rotateY(8deg) rotateX(2deg);
+  transform-origin: left center;
+  box-shadow:
+    40px 60px 100px -30px rgba(15, 23, 42, 0.30),
+    0 25px 50px -15px rgba(15, 23, 42, 0.15);
+}
+
+.liTopbar {
+  height: 44px;
+  background: #fff;
+  border-bottom: 1px solid #e3e1de;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 14px;
+}
+
+.liLogo {
+  font-weight: 900;
+  font-size: 22px;
+  color: #0a66c2;
+  letter-spacing: -0.5px;
+}
+.liLogo span {
+  background: #0a66c2;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.liSearch {
+  width: 240px;
+  height: 28px;
+  background: #edf3f8;
+  border-radius: 4px;
+}
+
+.liNavIcons {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+}
+.liNavIcons span {
+  width: 26px;
+  height: 26px;
+  background: #d3cfc8;
+  border-radius: 50%;
+}
+
+.liCard {
+  background: #fff;
+  margin: 14px;
+  border-radius: 8px;
+  border: 1px solid #e3e1de;
+  padding: 22px 24px;
+}
+
+.liJobTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.liCompanyLine {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #5f5f5f;
+}
+.liCompanyLine b {
+  color: #111;
+  font-weight: 600;
+}
+
+.liMeta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+.liActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.liBtn {
+  height: 30px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.liBtnPrimary {
+  background: #0a66c2;
+  color: white;
+}
+.liBtnGhost {
+  background: transparent;
+  color: #0a66c2;
+  border: 1px solid #0a66c2;
+}
+
+.liSectionTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  margin-top: 18px;
+}
+
+.liDesc {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #2a2a2a;
+}
+.liDesc p {
+  margin-top: 8px;
+}
+.liDesc p:first-child {
+  margin-top: 0;
+}
+.liDesc strong {
+  font-weight: 700;
+  color: #111;
+}
+
+.hlPass {
+  background: linear-gradient(180deg, transparent 60%, rgba(16, 185, 129, 0.28) 60%);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+.hlFail {
+  background: linear-gradient(180deg, transparent 60%, rgba(244, 63, 94, 0.28) 60%);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+.hlInfo {
+  background: linear-gradient(180deg, transparent 60%, rgba(59, 130, 246, 0.26) 60%);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+/* canvasjob side panel */
+.cjPanel {
+  position: absolute;
+  right: 60px;
+  top: 130px;
+  width: 420px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  transform: rotateY(-4deg) rotateX(2deg);
+  transform-origin: right center;
+  box-shadow:
+    -40px 60px 100px -30px rgba(15, 23, 42, 0.30),
+    0 25px 50px -15px rgba(15, 23, 42, 0.18);
+}
+
+.badgeDerived {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #059669;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 12px 24px -8px rgba(5, 150, 105, 0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+.badgeDerived svg {
+  color: #fff;
+}
+
+.cjHeader {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 10px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.cjBrand {
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.4px;
+  color: #111;
+}
+
+.cjIcon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.cjProfilePill {
+  margin-left: auto;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #111;
+  font-weight: 500;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cjBody {
+  padding: 16px 18px 0;
+  flex: 1;
+}
+
+.cjTagRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cjTag {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cjTrackBtn {
+  background: #111;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  font-family: inherit;
+}
+
+.cjJobTitle {
+  font-size: 19px;
+  font-weight: 700;
+  margin-top: 14px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+  color: #111;
+}
+
+.cjJobMeta {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.cjList {
+  margin-top: 18px;
+}
+
+.cjRow {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #f1f1f1;
+}
+.cjRow:first-child {
+  border-top: 0;
+}
+
+.cjBullet {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.cjBulletPass    { background: #ecfdf5; color: #059669; }
+.cjBulletFail    { background: #fef2f2; color: #e11d48; }
+.cjBulletUnknown { background: #f3f4f6; color: #6b7280; }
+.cjBulletInfo    { background: #eff6ff; color: #2563eb; }
+
+.cjRowTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.3;
+}
+
+.cjRowEvidence {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+.cjRowEvidence b {
+  color: #111;
+  font-weight: 700;
+}
+
+.cjFooter {
+  border-top: 1px solid #f1f1f1;
+  height: 46px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.cjFooterAction {
+  color: #111;
+  font-weight: 600;
+}
