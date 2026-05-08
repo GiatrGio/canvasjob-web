@@ -8,15 +8,19 @@ import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast"
 
 const FREE_FEATURES = [
   "200 job evaluations / month",
-  "Unlimited filter profiles",
-  "Application tracker",
+  "Up to 5 job profiles",
+  "10 filters per profile",
+  "Track up to 100 jobs at the same time",
   "Chrome extension on supported sites",
 ];
 
+// Pro is marketed as unlimited for tracked jobs. The backend still keeps a
+// high abuse ceiling so one account cannot create unbounded storage growth.
 const PRO_FEATURES = [
   "Unlimited job evaluations",
-  "Unlimited filter profiles",
-  "Application tracker",
+  "Up to 5 job profiles",
+  "10 filters per profile",
+  "Unlimited tracked jobs",
   "20 CV Tailorings / month",
   "Priority support",
 ];

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Check,
   X,
@@ -9,31 +10,149 @@ import {
   Clock,
   ArrowRight,
   Chrome,
+  CalendarDays,
+  Columns3,
+  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { HeroIllustration } from "@/components/marketing/hero-illustration";
 
-function ScreenshotPlaceholder({
-  label,
+const SCREENSHOTS = {
+  extensionFilterEvaluation: "/marketing/screenshots/extension-filter-evaluation.png",
+  settingsFilters: "/marketing/screenshots/settings-filters.png",
+  websiteCalendar: "/marketing/screenshots/website-calendar-view.png",
+  websiteJobPage: "/marketing/screenshots/website-job-page.png",
+  websiteList: "/marketing/screenshots/website-list-view.png",
+  extensionRightPanel: "/marketing/screenshots/extension-right-panel.png",
+  websiteBoard: "/marketing/screenshots/website-board-view.png",
+} as const;
+
+function ProductScreenshot({
+  src,
+  alt,
   aspect = "16/10",
   className = "",
+  imageClassName = "object-cover",
+  objectPosition = "center",
 }: {
-  label: string;
+  src: string;
+  alt: string;
   aspect?: string;
   className?: string;
+  imageClassName?: string;
+  objectPosition?: string;
 }) {
   return (
     <div
-      className={`relative w-full overflow-hidden rounded-xl border border-dashed border-muted-foreground/30 bg-muted/40 ${className}`}
+      className={`relative w-full overflow-hidden rounded-xl border bg-white shadow-sm ${className}`}
       style={{ aspectRatio: aspect }}
     >
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
-        <span className="rounded-full bg-background px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Screenshot placeholder
-        </span>
-        <span className="max-w-md text-sm text-muted-foreground">{label}</span>
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        className={imageClassName}
+        style={{ objectPosition }}
+      />
+    </div>
+  );
+}
+
+function ProblemVisual() {
+  return (
+    <div className="relative mx-auto w-full max-w-xl">
+      <div className="relative isolate aspect-[4/3] overflow-hidden rounded-2xl border bg-white shadow-xl">
+        <div className="absolute inset-x-5 bottom-5 top-5 overflow-hidden rounded-xl border bg-white">
+          <Image
+            src={SCREENSHOTS.websiteJobPage}
+            alt="A detailed job page with a long job description"
+            fill
+            sizes="(min-width: 1024px) 44vw, 100vw"
+            className="object-cover opacity-95"
+            style={{ objectPosition: "18% 12%" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/90" />
+        </div>
+        <div className="absolute -right-5 bottom-9 top-9 w-[52%] overflow-hidden rounded-xl border bg-white shadow-2xl">
+          <Image
+            src={SCREENSHOTS.extensionRightPanel}
+            alt="canvasjob side panel showing filter verdicts with evidence"
+            fill
+            sizes="(min-width: 1024px) 24vw, 60vw"
+            className="object-cover"
+            style={{ objectPosition: "top center" }}
+          />
+        </div>
+        <div className="absolute bottom-7 left-7 max-w-[58%] rounded-lg border bg-white/95 px-3 py-2 text-xs shadow-sm backdrop-blur">
+          <span className="font-semibold">From long description</span>
+          <span className="mx-2 text-muted-foreground">to</span>
+          <span className="font-semibold text-emerald-700">clear verdict</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrackerShowcase() {
+  const miniShots = [
+    {
+      title: "List",
+      icon: List,
+      src: SCREENSHOTS.websiteList,
+      alt: "canvasjob tracker list view with jobs and status controls",
+      aspect: "16/8",
+      objectPosition: "center top",
+    },
+    {
+      title: "Calendar",
+      icon: CalendarDays,
+      src: SCREENSHOTS.websiteCalendar,
+      alt: "canvasjob tracker calendar view with application and interview events",
+      aspect: "16/9",
+      objectPosition: "center top",
+    },
+    {
+      title: "Job page",
+      icon: Briefcase,
+      src: SCREENSHOTS.websiteJobPage,
+      alt: "canvasjob individual job page with notes, deadlines, contacts, and description",
+      aspect: "16/10",
+      objectPosition: "center top",
+    },
+  ];
+
+  return (
+    <div className="mt-12 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <Columns3 className="h-4 w-4 text-emerald-700" />
+          Board view
+        </div>
+        <ProductScreenshot
+          src={SCREENSHOTS.websiteBoard}
+          alt="canvasjob tracker board view with saved, applied, interviewing, and offer columns"
+          aspect="16/10"
+          objectPosition="center top"
+        />
+      </div>
+      <div className="grid gap-5">
+        {miniShots.map((shot) => (
+          <div key={shot.title} className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <shot.icon className="h-4 w-4 text-emerald-700" />
+              {shot.title}
+            </div>
+            <ProductScreenshot
+              src={shot.src}
+              alt={shot.alt}
+              aspect={shot.aspect}
+              objectPosition={shot.objectPosition}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -116,34 +235,6 @@ export default function LandingPage() {
             <div className="mx-auto mt-14 max-w-5xl">
               <HeroIllustration />
             </div>
-
-            {/* Comparison strip */}
-            <div className="mx-auto mt-12 max-w-4xl">
-              <p className="text-center text-xs uppercase tracking-wider text-muted-foreground">
-                Job-search tools you&apos;ve seen — at a glance
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
-                {[
-                  { name: "Teal", price: "$29/mo" },
-                  { name: "Huntr", price: "$40/mo" },
-                  { name: "Simplify", price: "$40/mo" },
-                  { name: "Jobscan", price: "$50/mo" },
-                ].map((c) => (
-                  <div
-                    key={c.name}
-                    className="flex items-baseline justify-center gap-2 rounded-md border bg-card px-3 py-2"
-                  >
-                    <span className="font-medium">{c.name}</span>
-                    <span className="text-xs text-muted-foreground line-through">
-                      {c.price}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-3 text-center text-sm text-foreground">
-                canvasjob is <span className="font-semibold">€7.99/month</span> — and the only tool that decides for you whether a job is even worth reading.
-              </p>
-            </div>
           </div>
         </section>
 
@@ -189,10 +280,7 @@ export default function LandingPage() {
                   </li>
                 </ul>
               </div>
-              <ScreenshotPlaceholder
-                label="Before/after split: a long LinkedIn job description on the left, the canvasjob side panel verdict on the right summarising the same job in three lines."
-                aspect="4/3"
-              />
+              <ProblemVisual />
             </div>
           </div>
         </section>
@@ -220,21 +308,30 @@ export default function LandingPage() {
                   icon: Filter,
                   title: "Write your filters in plain English",
                   body: '"Must be fully remote inside the EU." "Salary at least €6,000/month." "Open to candidates based in Greece." Group them into named profiles for different roles.',
-                  shot: "Filter editor with three free-text filter rules and a profile dropdown.",
+                  shot: SCREENSHOTS.settingsFilters,
+                  alt: "canvasjob settings page with job profiles and plain-English filters",
+                  position: "center top",
+                  imageClassName: "object-cover",
                 },
                 {
                   n: "02",
                   icon: Sparkles,
                   title: "Open any LinkedIn job",
                   body: "The side panel reads the description and returns a verdict per filter — pass, fail, or unknown — with the exact quote from the listing as evidence. Cached after the first read.",
-                  shot: "Side panel showing checklist with evidence quotes expanded.",
+                  shot: SCREENSHOTS.extensionRightPanel,
+                  alt: "canvasjob Chrome extension side panel showing evaluation results",
+                  position: "top center",
+                  imageClassName: "object-contain p-4",
                 },
                 {
                   n: "03",
                   icon: Briefcase,
                   title: "Track the ones that matter",
                   body: "One click saves the job to your tracker. Move it through Saved → Applied → Interviewing → Offer on the dashboard. Notes, applied date, and (soon) one-click CV tailoring per role.",
-                  shot: "Tracker dashboard with kanban-style columns and one job card highlighted.",
+                  shot: SCREENSHOTS.websiteBoard,
+                  alt: "canvasjob tracker board with job cards grouped by status",
+                  position: "center top",
+                  imageClassName: "object-cover",
                 },
               ].map((step) => (
                 <div key={step.n} className="flex flex-col gap-4">
@@ -246,7 +343,13 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold tracking-tight">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.body}</p>
-                  <ScreenshotPlaceholder label={step.shot} aspect="4/3" />
+                  <ProductScreenshot
+                    src={step.shot}
+                    alt={step.alt}
+                    aspect="4/3"
+                    imageClassName={step.imageClassName}
+                    objectPosition={step.position}
+                  />
                 </div>
               ))}
             </div>
@@ -344,7 +447,6 @@ export default function LandingPage() {
                   icon: Filter,
                   title: "AI job filter",
                   body: "Free-text rules evaluated against the full description. ✅ pass, ❌ fail, or ❓ if the listing is silent — never a false negative.",
-                  tag: "Headline feature",
                 },
                 {
                   icon: Briefcase,
@@ -365,9 +467,11 @@ export default function LandingPage() {
                       <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50">
                         <f.icon className="h-5 w-5 text-emerald-700" />
                       </span>
-                      <span className="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {f.tag}
-                      </span>
+                      {"tag" in f && f.tag ? (
+                        <span className="rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {f.tag}
+                        </span>
+                      ) : null}
                     </div>
                     <h3 className="text-lg font-semibold">{f.title}</h3>
                     <p className="text-sm text-muted-foreground">{f.body}</p>
@@ -375,6 +479,30 @@ export default function LandingPage() {
                 </Card>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* TRACKER */}
+        <section className="border-t bg-muted/30">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                  Job tracker
+                </p>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                  Keep every promising role moving.
+                </h2>
+              </div>
+              <p className="text-muted-foreground">
+                The filter tells you what is worth a closer look. The tracker keeps
+                those jobs organized after that: board, list, and calendar views,
+                plus a full job page for notes, deadlines, interview rounds, contacts,
+                and the original description.
+              </p>
+            </div>
+
+            <TrackerShowcase />
           </div>
         </section>
 
@@ -497,7 +625,9 @@ export default function LandingPage() {
                   </tr>
                   <tr>
                     <td className="px-5 py-3 font-medium">Free tier</td>
-                    <td className="px-5 py-3 text-emerald-800">200 evals/mo</td>
+                    <td className="px-5 py-3 text-emerald-800">
+                      200 evals/mo + 100 tracked jobs
+                    </td>
                     <td className="px-5 py-3 text-muted-foreground">Tracking only</td>
                     <td className="px-5 py-3 text-muted-foreground">~40–100 jobs</td>
                     <td className="px-5 py-3 text-muted-foreground">Autofill only</td>

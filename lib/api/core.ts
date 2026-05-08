@@ -20,6 +20,8 @@ import type {
   ApplicationListItem,
   ApplicationUpdateInput,
   BillingSession,
+  AdminPlan,
+  AdminUser,
   MeResponse,
 } from "@/lib/types";
 
@@ -57,6 +59,13 @@ export interface Api {
   billing: {
     createCheckoutSession(): Promise<BillingSession>;
     createPortalSession(): Promise<BillingSession>;
+  };
+  admin: {
+    users: {
+      list(): Promise<AdminUser[]>;
+      updatePlan(id: string, plan: AdminPlan): Promise<AdminUser>;
+      delete(id: string): Promise<void>;
+    };
   };
 }
 
@@ -145,6 +154,17 @@ export function makeApi(getToken: TokenGetter): Api {
         request<BillingSession>("/billing/checkout-session", { method: "POST" }),
       createPortalSession: () =>
         request<BillingSession>("/billing/portal-session", { method: "POST" }),
+    },
+    admin: {
+      users: {
+        list: () => request<AdminUser[]>("/admin/users"),
+        updatePlan: (id, plan) =>
+          request<AdminUser>(`/admin/users/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ plan }),
+          }),
+        delete: (id) => request<void>(`/admin/users/${id}`, { method: "DELETE" }),
+      },
     },
   };
 }

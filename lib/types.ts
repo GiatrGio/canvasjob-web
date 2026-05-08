@@ -152,3 +152,18 @@ export interface MeResponse {
 export interface BillingSession {
   url: string;
 }
+
+export type AdminPlan = "free" | "pro";
+
+export interface AdminUser {
+  id: string;
+  email: string | null;
+  plan: AdminPlan;
+  evaluations_used: number;
+  monthly_eval_limit: number;
+  cv_tailorings_used: number;
+  monthly_cv_tailoring_limit: number;
+  usage_period: string;
+  created_at: string | null;
+  last_sign_in_at: string | null;
+}

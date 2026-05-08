@@ -11,7 +11,7 @@ export function HeroIllustration() {
       aria-label="LinkedIn job page on the left, with the canvasjob side panel on the right showing a checklist of filter verdicts derived from the description."
     >
       <foreignObject x="0" y="0" width="1600" height="900">
-        <div xmlns="http://www.w3.org/1999/xhtml" className={styles.scene}>
+        <div className={styles.scene}>
         <div className={styles.headerStrip}>
           <span className={`${styles.stripLabel} ${styles.stripLabelLi}`}>
             <span className={styles.dot} />
