@@ -20,6 +20,11 @@ import type {
   ApplicationListItem,
   ApplicationUpdateInput,
   BillingSession,
+  AdminDeleteResult,
+  AdminLLMCall,
+  AdminLLMCallDetail,
+  AdminLLMPricing,
+  AdminLLMRange,
   AdminPlan,
   AdminUser,
   MeResponse,
@@ -65,6 +70,15 @@ export interface Api {
       list(): Promise<AdminUser[]>;
       updatePlan(id: string, plan: AdminPlan): Promise<AdminUser>;
       delete(id: string): Promise<void>;
+    };
+    llmCalls: {
+      list(range: AdminLLMRange): Promise<AdminLLMCall[]>;
+      get(id: string): Promise<AdminLLMCallDetail>;
+      delete(id: string): Promise<void>;
+      deleteOlderThan(range: AdminLLMRange): Promise<AdminDeleteResult>;
+    };
+    llmPricing: {
+      get(): Promise<AdminLLMPricing>;
     };
   };
 }
@@ -164,6 +178,18 @@ export function makeApi(getToken: TokenGetter): Api {
             body: JSON.stringify({ plan }),
           }),
         delete: (id) => request<void>(`/admin/users/${id}`, { method: "DELETE" }),
+      },
+      llmCalls: {
+        list: (range) => request<AdminLLMCall[]>(`/admin/llm-calls?range=${range}`),
+        get: (id) => request<AdminLLMCallDetail>(`/admin/llm-calls/${id}`),
+        delete: (id) => request<void>(`/admin/llm-calls/${id}`, { method: "DELETE" }),
+        deleteOlderThan: (range) =>
+          request<AdminDeleteResult>(`/admin/llm-calls?older_than=${range}`, {
+            method: "DELETE",
+          }),
+      },
+      llmPricing: {
+        get: () => request<AdminLLMPricing>("/admin/llm-pricing"),
       },
     },
   };

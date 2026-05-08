@@ -154,6 +154,7 @@ export interface BillingSession {
 }
 
 export type AdminPlan = "free" | "pro";
+export type AdminLLMRange = "1h" | "24h" | "7d" | "30d";
 
 export interface AdminUser {
   id: string;
@@ -166,4 +167,46 @@ export interface AdminUser {
   usage_period: string;
   created_at: string | null;
   last_sign_in_at: string | null;
+}
+
+export interface AdminLLMCall {
+  id: string;
+  user_email: string | null;
+  call_type: string;
+  provider: string;
+  model: string;
+  status: "success" | "error";
+  source: string | null;
+  external_id: string | null;
+  summary: string | null;
+  tokens_input: number;
+  tokens_output: number;
+  cost_usd_micros: number | null;
+  duration_ms: number | null;
+  created_at: string;
+}
+
+export interface AdminLLMCallDetail extends AdminLLMCall {
+  prompt: Record<string, unknown>;
+  response: unknown;
+  error: string | null;
+}
+
+export interface AdminLLMPricingModel {
+  provider: string;
+  model: string;
+  input_cost_usd_per_million: number;
+  output_cost_usd_per_million: number;
+  source: "env" | "default" | "unavailable" | string;
+}
+
+export interface AdminLLMPricing {
+  active_provider: string;
+  active_model: string;
+  fetched_at: string;
+  models: AdminLLMPricingModel[];
+}
+
+export interface AdminDeleteResult {
+  deleted_count: number;
 }
