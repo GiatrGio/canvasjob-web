@@ -327,7 +327,7 @@ def filter_video_frame(frame_idx: int, assets: dict[str, Image.Image]) -> Image.
         d.rounded_rectangle((170, 1090, 910, 1234), radius=48, fill=WHITE)
         draw_text(frame, "Add to Chrome - free", (540, 1130), 48, BLACK, "bold", p, 700, align="center")
         draw_text(frame, "canvasjob", (540, 1390), 82, WHITE, "bold", p, 800, align="center")
-        chip(frame, "200 evals/month", (276, 1542), MINT, BLACK, clamp((local - 10) / 14))
+        chip(frame, "50 evals/month", (276, 1542), MINT, BLACK, clamp((local - 10) / 14))
         swipe(frame, local)
 
     progress_bar(frame, frame_idx)
@@ -384,7 +384,7 @@ def tracker_video_frame(frame_idx: int, assets: dict[str, Image.Image]) -> Image
         draw_text(frame, "Launch your job search from one clean flow.", (540, 710), 42, WHITE, "bold", clamp((local - 8) / 16), 830, align="center")
         d.rounded_rectangle((178, 1110, 902, 1252), radius=48, fill=WHITE)
         draw_text(frame, "Try canvasjob beta", (540, 1150), 48, BLACK, "bold", p, 700, align="center")
-        chip(frame, "100 tracked jobs free", (294, 1440), MINT, BLACK, clamp((local - 11) / 14))
+        chip(frame, "5 tracked jobs free", (294, 1440), MINT, BLACK, clamp((local - 11) / 14))
         swipe(frame, local, EMERALD)
 
     progress_bar(frame, frame_idx)

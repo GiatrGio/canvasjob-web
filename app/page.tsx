@@ -175,10 +175,10 @@ export default function LandingPage() {
               How it works
             </Link>
             <Link
-              href="#compare"
+              href="#job-tracker"
               className="hidden text-muted-foreground hover:text-foreground sm:inline"
             >
-              Compare
+              Job Tracker
             </Link>
             <Link
               href="/pricing"
@@ -228,7 +228,7 @@ export default function LandingPage() {
                 </Button>
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
-                Free forever for 200 evaluations / month. No credit card.
+                Free forever for 50 evaluations / month. No credit card.
               </p>
             </div>
 
@@ -418,7 +418,7 @@ export default function LandingPage() {
 
                 <div className="mt-2 flex items-center justify-between border-t pt-4 text-xs text-muted-foreground">
                   <span>Evaluated in 4.2s · Cached</span>
-                  <span>12 / 200 this month</span>
+                  <span>12 / 50 this month</span>
                 </div>
               </CardContent>
             </Card>
@@ -483,7 +483,7 @@ export default function LandingPage() {
         </section>
 
         {/* TRACKER */}
-        <section className="border-t bg-muted/30">
+        <section id="job-tracker" className="border-t bg-muted/30">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
               <div>
@@ -503,144 +503,6 @@ export default function LandingPage() {
             </div>
 
             <TrackerShowcase />
-          </div>
-        </section>
-
-        {/* COMPARISON */}
-        <section id="compare" className="border-t bg-muted/30">
-          <div className="mx-auto max-w-5xl px-6 py-20">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                How we compare
-              </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                Cheaper than every alternative — and we read the job for you.
-              </h2>
-              <p className="mt-4 text-muted-foreground">
-                Other tools focus on autofill, resume tailoring, and kanban boards.
-                Nobody else tells you whether a job is even worth opening.
-              </p>
-            </div>
-
-            <div className="mt-12 overflow-x-auto rounded-xl border bg-background">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50 text-left">
-                    <th className="px-5 py-3 font-semibold">&nbsp;</th>
-                    <th className="px-5 py-3 font-semibold text-emerald-800">
-                      canvasjob
-                    </th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">Teal</th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">
-                      Huntr
-                    </th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">
-                      Simplify
-                    </th>
-                    <th className="px-5 py-3 font-medium text-muted-foreground">
-                      Jobscan
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="[&>tr:not(:last-child)]:border-b">
-                  <tr>
-                    <td className="px-5 py-3 font-medium">Paid plan</td>
-                    <td className="px-5 py-3 font-semibold text-emerald-800">€7.99/mo</td>
-                    <td className="px-5 py-3 text-muted-foreground">$29/mo</td>
-                    <td className="px-5 py-3 text-muted-foreground">$40/mo</td>
-                    <td className="px-5 py-3 text-muted-foreground">$40/mo</td>
-                    <td className="px-5 py-3 text-muted-foreground">$50/mo</td>
-                  </tr>
-                  <tr>
-                    <td className="px-5 py-3 font-medium">
-                      AI verdict on each job (✅/❌/❓)
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-5 py-3 font-medium">Free-text custom filters</td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-5 py-3 font-medium">Application tracker</td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">
-                      <X className="h-4 w-4" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-5 py-3 font-medium">CV tailoring</td>
-                    <td className="px-5 py-3 text-muted-foreground">Coming soon</td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-5 py-3 font-medium">Free tier</td>
-                    <td className="px-5 py-3 text-emerald-800">
-                      200 evals/mo + 100 tracked jobs
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">Tracking only</td>
-                    <td className="px-5 py-3 text-muted-foreground">~40–100 jobs</td>
-                    <td className="px-5 py-3 text-muted-foreground">Autofill only</td>
-                    <td className="px-5 py-3 text-muted-foreground">5 scans/mo</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <p className="mt-6 text-center text-xs text-muted-foreground">
-              Competitor pricing as of April 2026. Sources: Teal, Huntr, Simplify,
-              Jobscan public pricing pages.
-            </p>
           </div>
         </section>
 
@@ -676,7 +538,7 @@ export default function LandingPage() {
                 },
                 {
                   q: "Can I cancel anytime?",
-                  a: "Yes. Pro is monthly, no commitment. Your tracker and filters stay; you just drop back to the free 200 evaluations / month.",
+                  a: "Yes. Pro is monthly, no commitment. Your tracker and filters stay; you just drop back to the free 50 evaluations / month.",
                 },
               ].map((item) => (
                 <div key={item.q} className="rounded-lg border bg-card p-5">
@@ -719,7 +581,7 @@ export default function LandingPage() {
               </Button>
             </div>
             <p className="mt-4 text-xs text-emerald-200/70">
-              200 free evaluations every month. No credit card required.
+              50 free evaluations every month. No credit card required.
             </p>
           </div>
         </section>

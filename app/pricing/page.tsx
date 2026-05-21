@@ -7,10 +7,10 @@ import { SubscribeButton } from "@/components/pricing/subscribe-button";
 import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast";
 
 const FREE_FEATURES = [
-  "200 job evaluations / month",
+  "50 job evaluations / month",
   "Up to 5 job profiles",
   "10 filters per profile",
-  "Track up to 100 jobs at the same time",
+  "Track up to 5 jobs at the same time",
   "Chrome extension on supported sites",
 ];
 
@@ -21,7 +21,6 @@ const PRO_FEATURES = [
   "Up to 5 job profiles",
   "10 filters per profile",
   "Unlimited tracked jobs",
-  "20 CV Tailorings / month",
   "Priority support",
 ];
 
@@ -44,7 +43,7 @@ export default function PricingPage() {
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight">Simple pricing</h1>
           <p className="mt-3 text-muted-foreground">
-            Start free. Upgrade when the tracker and CV tailoring earn their keep.
+            Start free. Upgrade when the tracker needs room to grow.
           </p>
         </div>
 

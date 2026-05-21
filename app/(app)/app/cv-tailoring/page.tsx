@@ -25,7 +25,7 @@ export default function CvTailoringPage() {
             How it&apos;ll work
           </CardTitle>
           <CardDescription>
-            Pro plan includes 20 CV Tailorings per month.
+            CV Tailoring is coming soon for Pro.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">

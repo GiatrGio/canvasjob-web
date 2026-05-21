@@ -31,7 +31,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
         <Card>
           <CardHeader>
             <CardTitle>Create your account</CardTitle>
-            <CardDescription>Free forever — 200 evaluations / month.</CardDescription>
+            <CardDescription>Free forever — 50 evaluations / month.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <SocialAuthButtons />
