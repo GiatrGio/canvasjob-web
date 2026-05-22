@@ -10,7 +10,7 @@ Marketing site + authenticated dashboard for **canvasjob**. Talks to the FastAPI
 - TypeScript, Tailwind CSS v4, shadcn-style components (hand-rolled, no CLI)
 - `@supabase/ssr` + `@supabase/supabase-js` — auth via cookies, JWT passed to the backend as a bearer token
 - `sonner` for toasts, `date-fns` for formatting, `lucide-react` for icons
-- Deployed to Vercel; single domain (`/` marketing, `/app/*` dashboard)
+- Deployed to Vercel at `https://www.canvasjob.com`; single domain (`/` marketing, `/app/*` dashboard)
 
 ## Routes
 
@@ -29,7 +29,8 @@ The `/app/*` group lives under `app/(app)/` and is gated by `app/(app)/layout.ts
 
 ```bash
 cp .env.example .env.local
-# Fill in NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_API_URL
+# Fill in NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+# NEXT_PUBLIC_API_URL, and NEXT_PUBLIC_SITE_URL
 
 npm install
 npm run dev   # http://localhost:3000
@@ -50,6 +51,6 @@ The backend must be running on `NEXT_PUBLIC_API_URL` (default `http://localhost:
 - New shadcn primitives go under `components/ui/` and are written by hand (no CLI). Keep them minimal — only add variants we actually use.
 - Pages stay thin; the work happens in components under `components/<area>/`.
 
-## Deployment (later)
+## Deployment
 
-Vercel project, set the three `NEXT_PUBLIC_*` env vars, push to `main`. The middleware refreshes the Supabase session cookie on every request, so server components always see fresh auth.
+Vercel project, set the `NEXT_PUBLIC_*` env vars including `NEXT_PUBLIC_SITE_URL=https://www.canvasjob.com`, push to `main`. The middleware refreshes the Supabase session cookie on every request, so server components always see fresh auth.

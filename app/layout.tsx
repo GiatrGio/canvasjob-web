@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://canvasjob.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.canvasjob.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
