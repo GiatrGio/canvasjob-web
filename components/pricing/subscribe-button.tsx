@@ -82,7 +82,7 @@ export function SubscribeButton() {
       onClick={startCheckout}
       disabled={busy || plan === "loading"}
     >
-      {busy ? "Opening Checkout…" : "Subscribe — €7.99 / month"}
+      {busy ? "Opening Checkout…" : "Subscribe — €4.99 / month"}
     </Button>
   );
 }

@@ -82,7 +82,7 @@ export default function PricingPage() {
               </div>
               <CardDescription>For active job hunters.</CardDescription>
               <div className="pt-4">
-                <span className="text-4xl font-bold">€7.99</span>
+                <span className="text-4xl font-bold">€4.99</span>
                 <span className="text-muted-foreground"> / month</span>
                 <p className="mt-1 text-xs text-muted-foreground">VAT included.</p>
               </div>

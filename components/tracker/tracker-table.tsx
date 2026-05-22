@@ -642,6 +642,7 @@ function KanbanBoard({
   onStatusChange: (id: string, next: ApplicationStatus) => void;
   onDelete: (id: string) => void;
 }) {
+  const [showPercentages, setShowPercentages] = useState(true);
   const byStatus = useMemo(() => {
     const grouped: Record<ApplicationStatus, ApplicationListItem[]> = {
       saved: [],
@@ -659,14 +660,38 @@ function KanbanBoard({
     return grouped;
   }, [items]);
 
+  const nonSavedTotal = items.length - byStatus.saved.length;
   const isDragging = draggingId !== null;
 
   return (
     <div className="space-y-6">
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <GripVertical className="h-3.5 w-3.5" />
-        Drag a card between columns to update its status.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <GripVertical className="h-3.5 w-3.5" />
+          Drag a card between columns to update its status.
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground">Show breakdown</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={showPercentages}
+            aria-label="Show breakdown"
+            onClick={() => setShowPercentages((current) => !current)}
+            className={cn(
+              "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              showPercentages ? "bg-primary" : "bg-muted-foreground/30",
+            )}
+          >
+            <span
+              className={cn(
+                "inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform",
+                showPercentages ? "translate-x-4" : "translate-x-0.5",
+              )}
+            />
+          </button>
+        </div>
+      </div>
 
       <div className="grid gap-3 lg:grid-cols-4">
         {ACTIVE_STATUSES.map((status) => (
@@ -675,6 +700,8 @@ function KanbanBoard({
             status={status}
             items={byStatus[status]}
             draggingId={draggingId}
+            nonSavedTotal={nonSavedTotal}
+            showPercentages={showPercentages}
             isDragging={isDragging}
             isOver={dragOverStatus === status}
             onDragStart={onDragStart}
@@ -697,6 +724,8 @@ function KanbanBoard({
               status={status}
               items={byStatus[status]}
               draggingId={draggingId}
+              nonSavedTotal={nonSavedTotal}
+              showPercentages={showPercentages}
               isDragging={isDragging}
               isOver={dragOverStatus === status}
               onDragStart={onDragStart}
@@ -717,6 +746,8 @@ function KanbanColumn({
   status,
   items,
   draggingId,
+  nonSavedTotal,
+  showPercentages,
   isDragging,
   isOver,
   onDragStart,
@@ -729,6 +760,8 @@ function KanbanColumn({
   status: ApplicationStatus;
   items: ApplicationListItem[];
   draggingId: string | null;
+  nonSavedTotal: number;
+  showPercentages: boolean;
   isDragging: boolean;
   isOver: boolean;
   onDragStart: (id: string) => void;
@@ -738,6 +771,8 @@ function KanbanColumn({
   onDelete: (id: string) => void;
   closed?: boolean;
 }) {
+  const share = status === "saved" ? null : formatApplicationShare(items.length, nonSavedTotal);
+
   return (
     <section
       className={cn(
@@ -768,7 +803,12 @@ function KanbanColumn({
       <div className="flex items-center justify-between border-b px-3 py-2">
         <div className="flex items-center gap-2">
           <StatusBadge status={status} />
-          <span className="text-xs text-muted-foreground">{items.length}</span>
+          <span className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">{items.length}</span>
+            {showPercentages && share ? (
+              <span className="ml-1 text-muted-foreground/80">({share})</span>
+            ) : null}
+          </span>
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-2 p-2">
@@ -798,6 +838,11 @@ function KanbanColumn({
       </div>
     </section>
   );
+}
+
+function formatApplicationShare(count: number, total: number) {
+  if (total === 0) return `${count}/0 0%`;
+  return `${count}/${total} ${Math.round((count / total) * 100)}%`;
 }
 
 function KanbanCard({
