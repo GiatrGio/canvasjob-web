@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { SubscribeButton } from "@/components/pricing/subscribe-button";
 import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast";
@@ -30,8 +31,8 @@ export default function PricingPage() {
       <CheckoutStatusToast />
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="font-semibold">
-            canvasjob
+          <Link href="/" className="flex items-center gap-2 font-semibold">
+            <CanvasjobLogo markClassName="h-7 w-7" />
           </Link>
           <nav className="flex items-center gap-2 text-sm sm:gap-3">
             <SiteHeaderActions />

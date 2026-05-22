@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { HeroIllustration } from "@/components/marketing/hero-illustration";
 
@@ -164,8 +165,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold">
-            <span className="inline-block h-6 w-6 rounded-md bg-emerald-700" aria-hidden />
-            canvasjob
+            <CanvasjobLogo markClassName="h-7 w-7" />
           </Link>
           <nav className="flex items-center gap-1 text-sm sm:gap-3">
             <Link
@@ -590,8 +590,7 @@ export default function LandingPage() {
       <footer className="border-t bg-background">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-10 text-sm text-muted-foreground sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-5 w-5 rounded-md bg-emerald-700" aria-hidden />
-            <span className="font-semibold text-foreground">canvasjob</span>
+            <CanvasjobLogo markClassName="h-6 w-6" />
             <span className="text-xs">© {new Date().getFullYear()}</span>
           </div>
           <nav className="flex items-center gap-5">

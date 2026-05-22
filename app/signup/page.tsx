@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignupForm } from "@/components/auth/signup-form";
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
+import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 type SignupPageProps = {
@@ -24,8 +25,8 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
     <div className="min-h-screen flex items-center justify-center bg-muted/40 px-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <Link href="/" className="text-xl font-semibold">
-            canvasjob
+          <Link href="/" className="inline-flex">
+            <CanvasjobLogo markClassName="h-8 w-8" textClassName="text-xl" />
           </Link>
         </div>
         <Card>

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Plan } from "@/lib/plan";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { PlanBadge } from "@/components/layout/plan-badge";
 
 const NAV = [
@@ -39,7 +40,7 @@ export function AppShell({
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <div className="flex min-w-0 items-center gap-3 sm:gap-6">
             <Link href="/app" className="shrink-0 font-semibold">
-              canvasjob
+              <CanvasjobLogo markClassName="h-7 w-7" />
             </Link>
             <nav className="flex min-w-0 items-center gap-1">
               {NAV.map(({ href, label, icon: Icon }) => {
