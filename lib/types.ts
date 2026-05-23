@@ -163,6 +163,7 @@ export interface AdminUser {
   evaluations_used: number;
   monthly_eval_limit: number;
   tracked_jobs_count: number;
+  tracked_jobs_limit: number;
   usage_period: string;
   created_at: string | null;
   last_sign_in_at: string | null;

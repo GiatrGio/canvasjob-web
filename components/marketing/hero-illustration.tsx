@@ -210,7 +210,7 @@ export function HeroIllustration() {
           </div>
 
           <div className={styles.cjFooter}>
-            <span>215 / 5000 this month</span>
+            <span>Pro · Unlimited evaluations</span>
             <span className={styles.cjFooterAction}>Settings</span>
           </div>
         </div>

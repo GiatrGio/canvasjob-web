@@ -110,7 +110,7 @@ export function makeApi(getToken: TokenGetter): Api {
     const body = text ? JSON.parse(text) : null;
 
     if (!res.ok) {
-      throw new ApiError(res.status, body?.detail || body?.error || res.statusText, body);
+      throw new ApiError(res.status, errorMessageFromBody(body, res.statusText), body);
     }
 
     return body as T;
@@ -193,4 +193,20 @@ export function makeApi(getToken: TokenGetter): Api {
       },
     },
   };
+}
+
+function errorMessageFromBody(body: unknown, fallback: string): string {
+  const parsed = body as { detail?: unknown; error?: unknown } | null | undefined;
+  const detail = parsed?.detail;
+  if (typeof detail === "string") return detail;
+  if (
+    detail &&
+    typeof detail === "object" &&
+    "error" in detail &&
+    typeof detail.error === "string"
+  ) {
+    return detail.error;
+  }
+  if (typeof parsed?.error === "string") return parsed.error;
+  return fallback;
 }

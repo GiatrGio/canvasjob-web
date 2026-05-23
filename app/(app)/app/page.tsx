@@ -8,7 +8,7 @@ import { AddApplicationDialog } from "@/components/tracker/add-application-dialo
  * mutates state client-side after that to keep status changes snappy.
  */
 export default async function TrackerPage() {
-  const items = await api.applications.list();
+  const [items, me] = await Promise.all([api.applications.list(), api.me()]);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -18,7 +18,7 @@ export default async function TrackerPage() {
             Every job you&apos;ve saved or applied to, in one place.
           </p>
         </div>
-        <AddApplicationDialog />
+        <AddApplicationDialog plan={me.plan} trackedJobCount={items.length} />
       </div>
       <TrackerTable initial={items} />
     </div>

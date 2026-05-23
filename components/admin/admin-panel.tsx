@@ -227,8 +227,8 @@ function UserAdminPanel() {
                     {formatNumber(user.monthly_eval_limit)} evals
                   </div>
                   <div className="text-xs">
-                    {formatNumber(user.tracked_jobs_count)}{" "}
-                    {user.tracked_jobs_count === 1 ? "tracked job" : "tracked jobs"}
+                    {formatNumber(user.tracked_jobs_count)} /{" "}
+                    {formatNumber(user.tracked_jobs_limit)} tracked jobs
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{formatDate(user.created_at)}</td>

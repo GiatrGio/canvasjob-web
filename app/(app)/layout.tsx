@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlan } from "@/lib/plan";
+import { FALLBACK_EVALUATION_LIMIT, FREE_TRACKED_JOB_LIMIT } from "@/lib/limits";
 import { AppShell } from "@/components/layout/app-shell";
 import type { AccountMenuMetrics } from "@/components/layout/account-menu";
-
-const FREE_TRACKED_JOB_LIMIT = 5;
-const FALLBACK_EVALUATION_LIMIT = 50;
 
 function currentUsagePeriod() {
   const now = new Date();
