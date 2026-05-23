@@ -33,6 +33,7 @@ import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAppSettings } from "@/components/layout/app-settings";
 import { StatusBadge } from "@/components/tracker/status-badge";
 import { StatusSelect } from "@/components/tracker/status-select";
 import {
@@ -642,7 +643,7 @@ function KanbanBoard({
   onStatusChange: (id: string, next: ApplicationStatus) => void;
   onDelete: (id: string) => void;
 }) {
-  const [showPercentages, setShowPercentages] = useState(true);
+  const { showBreakdown } = useAppSettings();
   const byStatus = useMemo(() => {
     const grouped: Record<ApplicationStatus, ApplicationListItem[]> = {
       saved: [],
@@ -665,33 +666,10 @@ function KanbanBoard({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <GripVertical className="h-3.5 w-3.5" />
-          Drag a card between columns to update its status.
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground">Show breakdown</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={showPercentages}
-            aria-label="Show breakdown"
-            onClick={() => setShowPercentages((current) => !current)}
-            className={cn(
-              "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              showPercentages ? "bg-primary" : "bg-muted-foreground/30",
-            )}
-          >
-            <span
-              className={cn(
-                "inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform",
-                showPercentages ? "translate-x-4" : "translate-x-0.5",
-              )}
-            />
-          </button>
-        </div>
-      </div>
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <GripVertical className="h-3.5 w-3.5" />
+        Drag a card between columns to update its status.
+      </p>
 
       <div className="grid gap-3 lg:grid-cols-4">
         {ACTIVE_STATUSES.map((status) => (
@@ -701,7 +679,7 @@ function KanbanBoard({
             items={byStatus[status]}
             draggingId={draggingId}
             nonSavedTotal={nonSavedTotal}
-            showPercentages={showPercentages}
+            showPercentages={showBreakdown}
             isDragging={isDragging}
             isOver={dragOverStatus === status}
             onDragStart={onDragStart}
@@ -725,7 +703,7 @@ function KanbanBoard({
               items={byStatus[status]}
               draggingId={draggingId}
               nonSavedTotal={nonSavedTotal}
-              showPercentages={showPercentages}
+              showPercentages={showBreakdown}
               isDragging={isDragging}
               isOver={dragOverStatus === status}
               onDragStart={onDragStart}
