@@ -158,17 +158,22 @@ export function TrackerTable({ initial }: { initial: ApplicationListItem[] }) {
     const current = items.find((i) => i.id === id);
     if (!current || current.status === next) return;
 
+    const stampedAppliedAt =
+      next === "applied" && !current.applied_at ? new Date().toISOString() : undefined;
+
     // Optimistic update; revert on error.
     const prev = items;
-    setItems((cur) => cur.map((it) => (it.id === id ? { ...it, status: next } : it)));
+    setItems((cur) =>
+      cur.map((it) =>
+        it.id === id
+          ? { ...it, status: next, applied_at: stampedAppliedAt ?? it.applied_at }
+          : it,
+      ),
+    );
     try {
       const patch: { status: ApplicationStatus; applied_at?: string } = { status: next };
-      // Auto-stamp applied_at when moving to "applied" if it's not set yet.
-      if (next === "applied" && !current.applied_at) {
-        patch.applied_at = new Date().toISOString();
-      }
+      if (stampedAppliedAt) patch.applied_at = stampedAppliedAt;
       await api.applications.update(id, patch);
-      router.refresh();
     } catch (err) {
       setItems(prev);
       toast.error(err instanceof Error ? err.message : "Update failed");

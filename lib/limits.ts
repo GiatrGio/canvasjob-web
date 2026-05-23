@@ -1,0 +1,2 @@
+export const FREE_TRACKED_JOB_LIMIT = 5;
+export const FALLBACK_EVALUATION_LIMIT = 50;

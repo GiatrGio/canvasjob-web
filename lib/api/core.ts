@@ -107,10 +107,14 @@ export function makeApi(getToken: TokenGetter): Api {
     }
 
     const text = await res.text();
-    const body = text ? JSON.parse(text) : null;
+    const body = parseResponseBody(text);
 
     if (!res.ok) {
       throw new ApiError(res.status, errorMessageFromBody(body, res.statusText), body);
+    }
+
+    if (typeof body === "string") {
+      throw new ApiError(res.status, "API returned a non-JSON response", body);
     }
 
     return body as T;
@@ -195,7 +199,17 @@ export function makeApi(getToken: TokenGetter): Api {
   };
 }
 
+function parseResponseBody(text: string): unknown {
+  if (!text) return null;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
+  }
+}
+
 function errorMessageFromBody(body: unknown, fallback: string): string {
+  if (typeof body === "string") return readableTextError(body, fallback);
   const parsed = body as { detail?: unknown; error?: unknown } | null | undefined;
   const detail = parsed?.detail;
   if (typeof detail === "string") return detail;
@@ -209,4 +223,10 @@ function errorMessageFromBody(body: unknown, fallback: string): string {
   }
   if (typeof parsed?.error === "string") return parsed.error;
   return fallback;
+}
+
+function readableTextError(text: string, fallback: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return fallback;
+  return trimmed.length > 240 ? `${trimmed.slice(0, 240)}...` : trimmed;
 }

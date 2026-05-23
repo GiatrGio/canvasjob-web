@@ -72,6 +72,7 @@ export function JobDetail({
 
   async function handleStatus(next: ApplicationStatus) {
     const prev = status;
+    const prevAppliedAt = appliedAt;
     setStatus(next);
     try {
       const patch: { status: ApplicationStatus; applied_at?: string } = { status: next };
@@ -81,9 +82,9 @@ export function JobDetail({
         setAppliedAt(today.slice(0, 10));
       }
       await api.applications.update(application.id, patch);
-      router.refresh();
     } catch (err) {
       setStatus(prev);
+      setAppliedAt(prevAppliedAt);
       toast.error(err instanceof Error ? err.message : "Update failed");
     }
   }
@@ -238,11 +239,11 @@ export function JobDetail({
           <CardContent className="space-y-2 text-sm">
             <Row label="Tracked" value={format(new Date(application.created_at), "PPP")} />
             <Row label="Updated" value={format(new Date(application.updated_at), "PPP")} />
-            {application.applied_at ? (
-              <Row label="Applied" value={format(new Date(application.applied_at), "PPP")} />
+            {appliedAt ? (
+              <Row label="Applied" value={format(new Date(`${appliedAt}T00:00:00`), "PPP")} />
             ) : null}
-            {application.deadline_at ? (
-              <Row label="Deadline" value={format(new Date(application.deadline_at), "PPP")} />
+            {deadlineAt ? (
+              <Row label="Deadline" value={format(new Date(`${deadlineAt}T00:00:00`), "PPP")} />
             ) : null}
           </CardContent>
         </Card>
