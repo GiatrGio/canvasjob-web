@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Briefcase, FileText } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Plan } from "@/lib/plan";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,6 @@ import { AppSettingsProvider } from "@/components/layout/app-settings";
 
 const NAV = [
   { href: "/app", label: "Tracker", icon: Briefcase },
-  { href: "/app/cv-tailoring", label: "CV Tailoring", icon: FileText },
 ];
 
 export function AppShell({

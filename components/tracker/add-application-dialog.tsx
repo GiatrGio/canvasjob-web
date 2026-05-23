@@ -94,7 +94,7 @@ export function AddApplicationDialog() {
               id="description"
               name="description"
               rows={5}
-              placeholder="Paste the job description here. We'll need it later for CV Tailoring."
+              placeholder="Paste the job description here so it stays with this tracked job."
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">

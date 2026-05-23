@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: "canvasjob",
     template: "%s | canvasjob",
   },
-  description: "Smarter job hunting: filter listings, track applications, tailor your CV.",
+  description: "Smarter job hunting: filter listings and track applications.",
   manifest: "/site.webmanifest",
   icons: {
     icon: [
@@ -22,13 +22,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "canvasjob",
-    description: "Smarter job hunting: filter listings, track applications, tailor your CV.",
+    description: "Smarter job hunting: filter listings and track applications.",
     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "canvasjob" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "canvasjob",
-    description: "Smarter job hunting: filter listings, track applications, tailor your CV.",
+    description: "Smarter job hunting: filter listings and track applications.",
     images: ["/brand/og-image.png"],
   },
 };

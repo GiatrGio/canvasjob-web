@@ -30,6 +30,21 @@ const SCREENSHOTS = {
   websiteBoard: "/marketing/screenshots/website-board-view.png",
 } as const;
 
+const FEATURE_CARDS = [
+  {
+    icon: Filter,
+    title: "AI job filter",
+    body: "Free-text rules evaluated against the full description. ✅ pass, ❌ fail, or ❓ if the listing is silent — never a false negative.",
+    visible: true,
+  },
+  {
+    icon: Briefcase,
+    title: "Application tracker",
+    body: "One-click save from the side panel. Status board on the website. Notes, applied date, and a clean source-agnostic schema for jobs from anywhere.",
+    tag: "Included free",
+  },
+];
+
 function ProductScreenshot({
   src,
   alt,
@@ -327,7 +342,7 @@ export default function LandingPage() {
                   n: "03",
                   icon: Briefcase,
                   title: "Track the ones that matter",
-                  body: "One click saves the job to your tracker. Move it through Saved → Applied → Interviewing → Offer on the dashboard. Notes, applied date, and (soon) one-click CV tailoring per role.",
+                  body: "One click saves the job to your tracker. Move it through Saved → Applied → Interviewing → Offer on the dashboard. Keep notes, dates, contacts, and every promising role organized.",
                   shot: SCREENSHOTS.websiteBoard,
                   alt: "canvasjob tracker board with job cards grouped by status",
                   position: "center top",
@@ -433,7 +448,7 @@ export default function LandingPage() {
                 What&apos;s included
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                A filter, a tracker, and a tailor.
+                A filter and a tracker.
               </h2>
               <p className="mt-4 text-muted-foreground">
                 Everything you need to go from &ldquo;scrolling LinkedIn&rdquo; to
@@ -441,26 +456,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="mt-14 grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  icon: Filter,
-                  title: "AI job filter",
-                  body: "Free-text rules evaluated against the full description. ✅ pass, ❌ fail, or ❓ if the listing is silent — never a false negative.",
-                },
-                {
-                  icon: Briefcase,
-                  title: "Application tracker",
-                  body: "One-click save from the side panel. Status board on the website. Notes, applied date, and a clean source-agnostic schema for jobs from anywhere.",
-                  tag: "Included free",
-                },
-                {
-                  icon: Sparkles,
-                  title: "CV tailoring",
-                  body: "Upload your base CV once. Open any tracked job, click Tailor, get a version rewritten for that role's keywords and requirements. Pro plan.",
-                  tag: "Coming soon",
-                },
-              ].map((f) => (
+            <div className="mt-14 grid gap-6 md:grid-cols-2">
+              {FEATURE_CARDS.map((f) => (
                 <Card key={f.title}>
                   <CardContent className="space-y-4 p-6">
                     <div className="flex items-center justify-between">
@@ -534,7 +531,7 @@ export default function LandingPage() {
                 },
                 {
                   q: "Is my data stored?",
-                  a: "Job descriptions you evaluate are sent to the LLM but not stored. Descriptions are only saved when you explicitly Track a job — needed later for CV tailoring.",
+                  a: "Job descriptions you evaluate are sent to the LLM but not stored. Descriptions are only saved when you explicitly Track a job, so your tracker can keep the original listing available.",
                 },
                 {
                   q: "Can I cancel anytime?",

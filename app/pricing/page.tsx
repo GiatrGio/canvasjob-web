@@ -6,6 +6,7 @@ import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { SubscribeButton } from "@/components/pricing/subscribe-button";
 import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast";
+import { createClient } from "@/lib/supabase/server";
 
 const FREE_FEATURES = [
   "50 job evaluations / month",
@@ -25,7 +26,13 @@ const PRO_FEATURES = [
   "Priority support",
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const freeCtaHref = user ? "/app" : "/signup";
+
   return (
     <div className="min-h-screen bg-background">
       <CheckoutStatusToast />
@@ -68,7 +75,7 @@ export default function PricingPage() {
                 ))}
               </ul>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/signup">Get started</Link>
+                <Link href={freeCtaHref}>Get started</Link>
               </Button>
             </CardContent>
           </Card>

@@ -14,14 +14,12 @@
 - [x] **App shell** — `components/layout/app-shell.tsx` renders the persistent header + sign-out for authenticated routes.
 - [x] **Tracker dashboard** — `app/(app)/app/page.tsx`. Server-rendered initial list, filter pills per status with counts, free-text search, optimistic inline status changes (auto-stamps `applied_at` on transition to Applied), manual `Add job` dialog for sites we don't yet support.
 - [x] **Individual job page** — `app/(app)/app/jobs/[id]/page.tsx`. Source-agnostic UI (no LinkedIn-specific copy), shows full description when present, status + applied date sidebar, debounced autosave for notes, delete with confirmation.
-- [x] **CV Tailoring placeholder** — `app/(app)/app/cv-tailoring/page.tsx`. Static "how it'll work" steps + disabled upload button.
 - [x] **Build green** — `npm run build` produces 9 routes (3 dynamic, 6 static) with no type errors.
 
 ## Not done (explicit non-goals for this pass)
 
 - [ ] **Real Supabase project hookup.** `.env.example` documents the three required env vars; `.env.local` is gitignored. First-run requires filling in real values for the Supabase URL, publishable key, and the FastAPI base URL.
 - [x] **Stripe billing.** `/pricing` starts Stripe Checkout through the backend and Pro users can open the Stripe Customer Portal.
-- [ ] **CV Tailoring functionality.** Page exists; upload + tailor button are placeholders. Needs (a) a CV upload endpoint on the backend (storing in Supabase Storage), (b) a `/cv-tailorings` endpoint that calls the LLM provider.
 - [ ] **Marketing copy on `/`.** Hero + features + screenshots + testimonials all deferred. The route renders a placeholder.
 - [ ] **Extension "Track this job" button.** Backend endpoint `POST /applications` exists; the extension just needs the UI + fetch wiring. Out of scope for this PR but a near-term follow-up.
 - [ ] **Tests.** No Vitest or Playwright config yet. Tracker logic is mostly thin glue around the backend, which has its own tests in `linkedin-job-filter-backend/tests/test_applications.py`. Add component tests when the surface grows.

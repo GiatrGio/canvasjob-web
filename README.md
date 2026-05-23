@@ -21,7 +21,6 @@ Marketing site + authenticated dashboard for **canvasjob**. Talks to the FastAPI
 | `/pricing` | public | Free + Pro tiers. Pro uses Stripe Checkout and the Stripe Customer Portal. |
 | `/app` | required | **Tracker dashboard** — list of every saved/applied job. |
 | `/app/jobs/[id]` | required | Individual job detail — generic, source-agnostic. |
-| `/app/cv-tailoring` | required | Placeholder for the Pro feature. |
 
 The `/app/*` group lives under `app/(app)/` and is gated by `app/(app)/layout.tsx`, which redirects to `/login` if there's no Supabase session.
 
