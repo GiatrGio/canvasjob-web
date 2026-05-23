@@ -10,9 +10,6 @@ import {
   Clock,
   ArrowRight,
   Chrome,
-  CalendarDays,
-  Columns3,
-  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,9 +20,7 @@ import { HeroIllustration } from "@/components/marketing/hero-illustration";
 const SCREENSHOTS = {
   extensionFilterEvaluation: "/marketing/screenshots/extension-filter-evaluation.png",
   settingsFilters: "/marketing/screenshots/settings-filters.png",
-  websiteCalendar: "/marketing/screenshots/website-calendar-view.png",
   websiteJobPage: "/marketing/screenshots/website-job-page.png",
-  websiteList: "/marketing/screenshots/website-list-view.png",
   extensionRightPanel: "/marketing/screenshots/extension-right-panel.png",
   websiteBoard: "/marketing/screenshots/website-board-view.png",
 } as const;
@@ -112,68 +107,6 @@ function ProblemVisual() {
   );
 }
 
-function TrackerShowcase() {
-  const miniShots = [
-    {
-      title: "List",
-      icon: List,
-      src: SCREENSHOTS.websiteList,
-      alt: "canvasjob tracker list view with jobs and status controls",
-      aspect: "16/8",
-      objectPosition: "center top",
-    },
-    {
-      title: "Calendar",
-      icon: CalendarDays,
-      src: SCREENSHOTS.websiteCalendar,
-      alt: "canvasjob tracker calendar view with application and interview events",
-      aspect: "16/9",
-      objectPosition: "center top",
-    },
-    {
-      title: "Job page",
-      icon: Briefcase,
-      src: SCREENSHOTS.websiteJobPage,
-      alt: "canvasjob individual job page with notes, deadlines, contacts, and description",
-      aspect: "16/10",
-      objectPosition: "center top",
-    },
-  ];
-
-  return (
-    <div className="mt-12 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <Columns3 className="h-4 w-4 text-emerald-700" />
-          Board view
-        </div>
-        <ProductScreenshot
-          src={SCREENSHOTS.websiteBoard}
-          alt="canvasjob tracker board view with saved, applied, interviewing, and offer columns"
-          aspect="16/10"
-          objectPosition="center top"
-        />
-      </div>
-      <div className="grid gap-5">
-        {miniShots.map((shot) => (
-          <div key={shot.title} className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <shot.icon className="h-4 w-4 text-emerald-700" />
-              {shot.title}
-            </div>
-            <ProductScreenshot
-              src={shot.src}
-              alt={shot.alt}
-              aspect={shot.aspect}
-              objectPosition={shot.objectPosition}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -190,7 +123,7 @@ export default function LandingPage() {
               How it works
             </Link>
             <Link
-              href="#job-tracker"
+              href="/job-tracker"
               className="hidden text-muted-foreground hover:text-foreground sm:inline"
             >
               Job Tracker
@@ -472,34 +405,18 @@ export default function LandingPage() {
                     </div>
                     <h3 className="text-lg font-semibold">{f.title}</h3>
                     <p className="text-sm text-muted-foreground">{f.body}</p>
+                    {f.title === "Application tracker" ? (
+                      <Button asChild variant="outline" size="sm">
+                        <Link href="/job-tracker">
+                          Explore tracker
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    ) : null}
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* TRACKER */}
-        <section id="job-tracker" className="border-t bg-muted/30">
-          <div className="mx-auto max-w-6xl px-6 py-20">
-            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                  Job tracker
-                </p>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                  Keep every promising role moving.
-                </h2>
-              </div>
-              <p className="text-muted-foreground">
-                The filter tells you what is worth a closer look. The tracker keeps
-                those jobs organized after that: board, list, and calendar views,
-                plus a full job page for notes, deadlines, interview rounds, contacts,
-                and the original description.
-              </p>
-            </div>
-
-            <TrackerShowcase />
           </div>
         </section>
 
@@ -591,6 +508,9 @@ export default function LandingPage() {
             <span className="text-xs">© {new Date().getFullYear()}</span>
           </div>
           <nav className="flex items-center gap-5">
+            <Link href="/job-tracker" className="hover:text-foreground">
+              Job tracker
+            </Link>
             <Link href="/pricing" className="hover:text-foreground">
               Pricing
             </Link>
