@@ -68,6 +68,7 @@ export interface Api {
   admin: {
     users: {
       list(): Promise<AdminUser[]>;
+      refresh(): Promise<AdminUser[]>;
       updatePlan(id: string, plan: AdminPlan): Promise<AdminUser>;
       delete(id: string): Promise<void>;
     };
@@ -176,6 +177,7 @@ export function makeApi(getToken: TokenGetter): Api {
     admin: {
       users: {
         list: () => request<AdminUser[]>("/admin/users"),
+        refresh: () => request<AdminUser[]>("/admin/users/refresh", { method: "POST" }),
         updatePlan: (id, plan) =>
           request<AdminUser>(`/admin/users/${id}`, {
             method: "PATCH",

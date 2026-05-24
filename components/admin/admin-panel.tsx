@@ -107,6 +107,18 @@ function UserAdminPanel() {
     }
   }
 
+  async function refreshUsers() {
+    setLoading(true);
+    try {
+      setUsers(await api.admin.users.refresh());
+      toast.success("User plans refreshed.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not refresh users");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function updatePlan(userId: string, plan: AdminPlan) {
     const current = users.find((user) => user.id === userId);
     if (!current || current.plan === plan) return;
@@ -177,7 +189,7 @@ function UserAdminPanel() {
         <Button
           variant="outline"
           className="gap-2 sm:ml-auto"
-          onClick={loadUsers}
+          onClick={refreshUsers}
           disabled={loading}
         >
           <RefreshCcw className={cn("h-4 w-4", loading && "animate-spin")} />

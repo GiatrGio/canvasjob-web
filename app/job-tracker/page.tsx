@@ -50,7 +50,9 @@ const VIEW_MODES = [
     body: "Scan every role in a compact table, filter by status, search by title, company, or location, and update status inline.",
     src: SCREENSHOTS.list,
     alt: "canvasjob tracker list view with status filters and search",
-    aspect: "16/9",
+    aspect: "16/10",
+    imageClassName: "object-contain",
+    objectPosition: "center",
   },
   {
     icon: CalendarDays,
@@ -230,6 +232,12 @@ export default function JobTrackerPage() {
                     src={view.src}
                     alt={view.alt}
                     aspect={view.aspect}
+                    imageClassName={
+                      "imageClassName" in view ? view.imageClassName : undefined
+                    }
+                    objectPosition={
+                      "objectPosition" in view ? view.objectPosition : undefined
+                    }
                     sizes="(min-width: 1024px) 32vw, 100vw"
                   />
                   <div className="flex items-start gap-3">
