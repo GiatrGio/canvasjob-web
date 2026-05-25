@@ -406,6 +406,9 @@ export default function JobTrackerPage() {
             <Link href="/pricing" className="hover:text-foreground">
               Pricing
             </Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
             <Link href="/login" className="hover:text-foreground">
               Log in
             </Link>

@@ -448,7 +448,7 @@ export default function LandingPage() {
                 },
                 {
                   q: "Is my data stored?",
-                  a: "Job descriptions you evaluate are sent to the LLM but not stored. Descriptions are only saved when you explicitly Track a job, so your tracker can keep the original listing available.",
+                  a: "Job descriptions you evaluate are sent to the AI provider and may appear in restricted diagnostic records used to operate the feature. When you Track a job, the description is also saved in your tracker so you can revisit the original listing.",
                 },
                 {
                   q: "Can I cancel anytime?",
@@ -513,6 +513,9 @@ export default function LandingPage() {
             </Link>
             <Link href="/pricing" className="hover:text-foreground">
               Pricing
+            </Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
             </Link>
             <Link href="/login" className="hover:text-foreground">
               Log in
