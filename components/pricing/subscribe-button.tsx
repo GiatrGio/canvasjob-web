@@ -80,9 +80,9 @@ export function SubscribeButton() {
     <Button
       className="w-full"
       onClick={startCheckout}
-      disabled={busy || plan === "loading"}
+      disabled
     >
-      {busy ? "Opening Checkout…" : "Subscribe — €4.99 / month"}
+      Coming soon...
     </Button>
   );
 }
