@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { HeroIllustration } from "@/components/marketing/hero-illustration";
+import { CHROME_WEB_STORE_URL } from "@/lib/urls";
 
 const SCREENSHOTS = {
   extensionFilterEvaluation: "/marketing/screenshots/extension-filter-evaluation.png",
@@ -163,7 +164,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href="/signup">
+                  <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
                     <Chrome className="h-4 w-4" />
                     Add to Chrome — free
                   </Link>
@@ -480,7 +481,7 @@ export default function LandingPage() {
                 size="lg"
                 className="w-full bg-white text-emerald-900 hover:bg-emerald-50 sm:w-auto"
               >
-                <Link href="/signup">
+                <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
                   <Chrome className="h-4 w-4" />
                   Add to Chrome — free
                 </Link>

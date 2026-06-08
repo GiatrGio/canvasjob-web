@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
+import { CHROME_WEB_STORE_URL } from "@/lib/urls";
 
 export const metadata: Metadata = {
   title: "Job tracker",
@@ -183,7 +184,7 @@ export default function JobTrackerPage() {
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href="/signup">
+                  <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
                     <Chrome className="h-4 w-4" />
                     Start tracking jobs
                   </Link>
@@ -375,7 +376,7 @@ export default function JobTrackerPage() {
                 size="lg"
                 className="w-full bg-white text-emerald-900 hover:bg-emerald-50 sm:w-auto"
               >
-                <Link href="/signup">
+                <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
                   Start free
                   <ArrowRight className="h-4 w-4" />
                 </Link>
