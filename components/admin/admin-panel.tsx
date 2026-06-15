@@ -665,7 +665,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+const CALL_TYPE_LABELS: Record<string, string> = {
+  dom_diagnostics: "DOM Diagnostics",
+};
+
 function formatCallType(value: string) {
+  if (CALL_TYPE_LABELS[value]) return CALL_TYPE_LABELS[value];
   return value
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))

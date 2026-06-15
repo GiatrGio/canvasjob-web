@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "How canvasjob collects, uses, stores, and shares data in its Chrome extension and web application.",
 };
 
-const LAST_UPDATED = "May 25, 2026";
+const LAST_UPDATED = "June 12, 2026";
 
 const serviceProviders = [
   {
@@ -19,8 +19,8 @@ const serviceProviders = [
   },
   {
     name: "Anthropic or OpenAI",
-    data: "Job description content and relevant filter text; filter text when filter validation is requested",
-    purpose: "Generate AI evaluation and filter-validation results through the active provider",
+    data: "Job description content and relevant filter text; filter text when filter validation is requested; extraction diagnostics, including a sanitized job-posting snapshot with your identity excluded, when the extension cannot read a job page",
+    purpose: "Generate AI evaluation and filter-validation results, and analyze extraction failures, through the active provider",
   },
   {
     name: "Stripe",
@@ -191,6 +191,25 @@ export default function PrivacyPolicyPage() {
               duration, status, and timestamp information.
             </Definition>
 
+            <Definition title="Extraction diagnostics">
+              Supported job pages change their layout frequently, which can stop the
+              extension from reading a listing. When that happens, the extension
+              automatically sends a diagnostic report so we can detect and fix the
+              breakage quickly. The report contains technical telemetry — which page
+              elements the extension could and could not read, the extractor version, the
+              page address and title, and your browser&apos;s user-agent — together with a
+              sanitized snapshot of the job-posting section of the page. That snapshot
+              keeps the page structure and the listing&apos;s own text (the same kind of
+              public job content already used to generate evaluations) so we can locate
+              where the information moved, but it is processed on your device to exclude
+              LinkedIn&apos;s navigation, feed, and messaging areas and to remove images
+              and personal details — including your own name and profile, and any email
+              addresses or phone numbers — before it is sent. At most one report is sent
+              per browsing session. The backend analyzes the report with the active AI
+              provider and stores the result in restricted diagnostic records for
+              troubleshooting.
+            </Definition>
+
             <Definition title="Tracked applications and information you add">
               When you click <span className="text-foreground">Track this job</span> or
               add a job manually, we store the job title, company, location, URL,
@@ -228,6 +247,17 @@ export default function PrivacyPolicyPage() {
               the side panel. That most recent local evaluation can include the scraped
               job information and its results. Local extension data remains in your
               browser until it is replaced, cleared, or the extension is removed.
+            </p>
+            <p>
+              If a supported job page changes in a way that prevents the extension from
+              reading it, the extension automatically sends us a diagnostic report so we
+              can fix the breakage quickly. As described under{" "}
+              <span className="text-foreground">Extraction diagnostics</span> above, that
+              report contains technical telemetry plus a sanitized snapshot of the
+              job-posting section — processed on your device to exclude LinkedIn&apos;s
+              navigation, feed, and messaging, and to remove images and personal details
+              such as your name, profile, and any emails or phone numbers — and is limited
+              to at most one report per browsing session.
             </p>
           </PolicySection>
 
