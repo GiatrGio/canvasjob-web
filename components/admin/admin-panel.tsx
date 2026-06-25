@@ -667,6 +667,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const CALL_TYPE_LABELS: Record<string, string> = {
   dom_diagnostics: "DOM Diagnostics",
+  cv_parse: "CV Parse",
+  job_fit: "Job Fit",
 };
 
 function formatCallType(value: string) {
