@@ -147,6 +147,7 @@ export interface MeResponse {
   email: string;
   plan: "free" | "pro";
   usage: { used: number; limit: number; period: string; warning_threshold?: number };
+  cover_letters: { used: number; limit: number; period: string; warning_threshold?: number };
 }
 
 export interface BillingSession {
@@ -162,6 +163,8 @@ export interface AdminUser {
   plan: AdminPlan;
   evaluations_used: number;
   monthly_eval_limit: number;
+  cover_letters_used: number;
+  monthly_cover_letter_limit: number;
   tracked_jobs_count: number;
   tracked_jobs_limit: number;
   usage_period: string;

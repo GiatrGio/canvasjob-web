@@ -8,6 +8,7 @@ import {
   CircleArrowUp,
   CircleUser,
   LogOut,
+  PenLine,
   Settings,
   type LucideProps,
 } from "lucide-react";
@@ -21,6 +22,10 @@ export type AccountMenuMetrics = {
     used: number;
     limit: number;
     period: string;
+  };
+  coverLetters: {
+    used: number;
+    limit: number;
   };
   trackedJobs: {
     used: number;
@@ -99,6 +104,13 @@ export function AccountMenu({
               label="Job evaluations"
               used={metrics.evaluations.used}
               limit={plan === "pro" ? null : metrics.evaluations.limit}
+              unlimitedLabel="Unlimited this month"
+            />
+            <MetricRow
+              icon={PenLine}
+              label="Cover letters"
+              used={metrics.coverLetters.used}
+              limit={metrics.coverLetters.limit}
               unlimitedLabel="Unlimited this month"
             />
             <MetricRow

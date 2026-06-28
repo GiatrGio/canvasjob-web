@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlan } from "@/lib/plan";
-import { FALLBACK_EVALUATION_LIMIT, FREE_TRACKED_JOB_LIMIT } from "@/lib/limits";
+import {
+  FALLBACK_COVER_LETTER_LIMIT,
+  FALLBACK_EVALUATION_LIMIT,
+  FREE_TRACKED_JOB_LIMIT,
+} from "@/lib/limits";
 import { AppShell } from "@/components/layout/app-shell";
 import type { AccountMenuMetrics } from "@/components/layout/account-menu";
 
@@ -29,12 +33,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [{ data: profile }, { data: usage }, { count: trackedJobCount }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("plan, monthly_eval_limit")
+      .select("plan, monthly_eval_limit, monthly_cover_letter_limit")
       .eq("id", user.id)
       .maybeSingle(),
     supabase
       .from("usage_counters")
-      .select("evaluations_used")
+      .select("evaluations_used, cover_letters_used")
       .eq("user_id", user.id)
       .eq("year_month", period)
       .maybeSingle(),
@@ -48,11 +52,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     typeof profile?.monthly_eval_limit === "number"
       ? profile.monthly_eval_limit
       : FALLBACK_EVALUATION_LIMIT;
+  const coverLetterLimit =
+    typeof profile?.monthly_cover_letter_limit === "number"
+      ? profile.monthly_cover_letter_limit
+      : FALLBACK_COVER_LETTER_LIMIT;
   const metrics: AccountMenuMetrics = {
     evaluations: {
       used: Number(usage?.evaluations_used ?? 0),
       limit: evaluationLimit,
       period,
+    },
+    coverLetters: {
+      used: Number(usage?.cover_letters_used ?? 0),
+      limit: coverLetterLimit,
     },
     trackedJobs: {
       used: trackedJobCount ?? 0,

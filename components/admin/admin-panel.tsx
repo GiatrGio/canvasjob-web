@@ -239,6 +239,10 @@ function UserAdminPanel() {
                     {formatNumber(user.monthly_eval_limit)} evals
                   </div>
                   <div className="text-xs">
+                    {formatNumber(user.cover_letters_used)} /{" "}
+                    {formatNumber(user.monthly_cover_letter_limit)} cover letters
+                  </div>
+                  <div className="text-xs">
                     {formatNumber(user.tracked_jobs_count)} /{" "}
                     {formatNumber(user.tracked_jobs_limit)} tracked jobs
                   </div>

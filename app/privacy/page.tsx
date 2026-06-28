@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "How canvasjob collects, uses, stores, and shares data in its Chrome extension and web application.",
 };
 
-const LAST_UPDATED = "June 12, 2026";
+const LAST_UPDATED = "June 28, 2026";
 
 const serviceProviders = [
   {
@@ -19,8 +19,8 @@ const serviceProviders = [
   },
   {
     name: "Anthropic or OpenAI",
-    data: "Job description content and relevant filter text; filter text when filter validation is requested; extraction diagnostics, including a sanitized job-posting snapshot with your identity excluded, when the extension cannot read a job page",
-    purpose: "Generate AI evaluation and filter-validation results, and analyze extraction failures, through the active provider",
+    data: "Job description content and relevant filter text; filter text when filter validation is requested; your CV's text when you upload one (to extract a non-identifying professional profile and, if you use cover letters, your contact details for pre-fill); your CV profile and the job description when scoring how well you match a job; extraction diagnostics, including a sanitized job-posting snapshot with your identity excluded, when the extension cannot read a job page; and, when you generate a cover letter, the job description, your CV profile, and your writing instructions",
+    purpose: "Generate AI evaluation, filter-validation, job-fit, and cover-letter results, and analyze extraction failures, through the active provider",
   },
   {
     name: "Stripe",
@@ -184,11 +184,29 @@ export default function PrivacyPolicyPage() {
               information to operate the feature and avoid unnecessary repeat AI calls.
             </Definition>
 
+            <Definition title="CV and job-fit information">
+              If you upload a CV for the job-fit feature, the backend sends its text to
+              the configured AI provider, Anthropic or OpenAI, to extract a
+              non-identifying professional profile — skills, years of experience,
+              seniority, generic role titles, domains, education level, languages, and a
+              short summary. We store only that profile. The uploaded file and its raw
+              text are processed in memory and are not stored, and the profile
+              deliberately excludes your name, contact details, and the names of specific
+              employers or schools. When you open a job, your profile and the job
+              description are sent to the provider to produce a match score with strengths
+              and gaps, which we cache to avoid repeat AI calls. You can view, edit, or
+              delete the profile at any time. If you also use the cover-letter feature,
+              your CV&apos;s contact details may be read once to pre-fill the cover-letter
+              fields you have left blank.
+            </Definition>
+
             <Definition title="Diagnostic AI call records">
-              To operate and troubleshoot the AI feature, restricted backend diagnostic
+              To operate and troubleshoot the AI features, restricted backend diagnostic
               records may include the AI prompt and output, which can contain job
-              descriptions and your filter text, along with provider, model, cost,
-              duration, status, and timestamp information.
+              descriptions, your filter text, your non-identifying CV profile, and your
+              cover-letter instructions — your raw CV text and contact details are
+              redacted — along with provider, model, cost, duration, status, and
+              timestamp information.
             </Definition>
 
             <Definition title="Extraction diagnostics">
@@ -216,6 +234,19 @@ export default function PrivacyPolicyPage() {
               source, original description, application status, dates and deadlines,
               notes, contact details you enter, and interview schedule details. This
               information powers your tracker, calendar, and job-detail views.
+            </Definition>
+
+            <Definition title="Cover-letter details and generated letters">
+              If you use the cover-letter feature, we store the details you provide for it
+              — your name, contact details, location, and your default writing instructions
+              (which may include achievements you want emphasized) — so we can produce a
+              complete, ready-to-send letter with your header and signature. To save you
+              typing, when you upload a CV we may read its contact details to pre-fill any
+              of these fields you have left blank. When you generate a letter, your job
+              description, your stored CV profile, and your instructions are sent to the
+              configured AI provider, Anthropic or OpenAI, to write it. The generated
+              letter is returned to your browser for download and is not stored on
+              canvasjob servers.
             </Definition>
 
             <Definition title="Plan, usage, and billing information">
@@ -307,7 +338,11 @@ export default function PrivacyPolicyPage() {
               records are kept while your account is active or until you remove them.
               You can delete tracked jobs, contacts, and interview records from the web
               application. Deleting a tracked job also removes the contacts and
-              interview records attached to that job.
+              interview records attached to that job. Your uploaded CV&apos;s
+              professional profile and the job-fit results derived from it are kept until
+              you delete your CV — which removes both — or your account. Cover-letter
+              details you save are kept until you change or remove them; generated cover
+              letters are not retained by canvasjob.
             </p>
             <p>
               Evaluation cache records and diagnostic AI call records are retained on
