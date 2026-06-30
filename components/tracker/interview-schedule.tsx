@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { format, isPast } from "date-fns";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { CalendarPlus, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
+import { parseIcs } from "@/lib/ics";
 import {
   type ApplicationInterview,
   type ApplicationInterviewCreateInput,
@@ -45,6 +46,11 @@ export function InterviewSchedule({
   const [items, setItems] = useState<ApplicationInterview[]>(initial);
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  // Seeds the add-form when a round is imported from an .ics invite. `formKey`
+  // forces a fresh mount so a new import replaces whatever was seeded before.
+  const [prefill, setPrefill] = useState<Partial<ApplicationInterviewCreateInput> | null>(null);
+  const [formKey, setFormKey] = useState(0);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function sortedItems() {
     return [...items].sort((a, b) =>
@@ -52,11 +58,50 @@ export function InterviewSchedule({
     );
   }
 
+  function openAdd(seed: Partial<ApplicationInterviewCreateInput> | null) {
+    setPrefill(seed);
+    setFormKey((k) => k + 1);
+    setAdding(true);
+  }
+
+  function closeAdd() {
+    setAdding(false);
+    setPrefill(null);
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // let the user re-pick the same file later
+    if (!file) return;
+    try {
+      const parsed = parseIcs(await file.text());
+      if (!parsed) {
+        toast.error("Couldn't find an event in that .ics file.");
+        return;
+      }
+      openAdd({
+        title: parsed.title ?? "",
+        scheduled_at: parsed.scheduledAt ?? undefined,
+        duration_minutes: parsed.durationMinutes ?? 60,
+        location: parsed.location,
+        interviewer: parsed.interviewer,
+        notes: parsed.notes,
+      });
+      if (parsed.scheduledAt) {
+        toast.success("Imported from invite — review the details and save.");
+      } else {
+        toast.warning("Imported, but couldn't read the date — please set it.");
+      }
+    } catch {
+      toast.error("Couldn't read that file.");
+    }
+  }
+
   async function handleCreate(body: ApplicationInterviewCreateInput) {
     try {
       const created = await api.interviews.create(applicationId, body);
       setItems((prev) => [...prev, created]);
-      setAdding(false);
+      closeAdd();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to add interview");
     }
@@ -87,16 +132,36 @@ export function InterviewSchedule({
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>Interview schedule</CardTitle>
         {!adding ? (
-          <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
-            <Plus className="h-4 w-4" />
-            Add round
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => fileRef.current?.click()}
+              title="Import a round from a calendar invite (.ics)"
+            >
+              <CalendarPlus className="h-4 w-4" />
+              Import .ics
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => openAdd(null)}>
+              <Plus className="h-4 w-4" />
+              Add round
+            </Button>
+          </div>
         ) : null}
       </CardHeader>
       <CardContent className="space-y-3">
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".ics,text/calendar"
+          className="hidden"
+          onChange={handleImportFile}
+        />
         {adding ? (
           <InterviewForm
-            onCancel={() => setAdding(false)}
+            key={formKey}
+            prefill={prefill ?? undefined}
+            onCancel={closeAdd}
             onSubmit={handleCreate}
           />
         ) : null}
@@ -239,19 +304,27 @@ function toDatetimeLocal(iso: string | null | undefined): string {
 
 function InterviewForm({
   initial,
+  prefill,
   onCancel,
   onSubmit,
 }: {
   initial?: ApplicationInterview;
+  prefill?: Partial<ApplicationInterviewCreateInput>;
   onCancel: () => void;
   onSubmit: (body: ApplicationInterviewCreateInput) => Promise<void>;
 }) {
-  const [title, setTitle] = useState(initial?.title ?? "");
-  const [scheduledAt, setScheduledAt] = useState(toDatetimeLocal(initial?.scheduled_at));
-  const [duration, setDuration] = useState(initial?.duration_minutes ?? 60);
-  const [location, setLocation] = useState(initial?.location ?? "");
-  const [interviewer, setInterviewer] = useState(initial?.interviewer ?? "");
-  const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [title, setTitle] = useState(initial?.title ?? prefill?.title ?? "");
+  const [scheduledAt, setScheduledAt] = useState(
+    toDatetimeLocal(initial?.scheduled_at ?? prefill?.scheduled_at),
+  );
+  const [duration, setDuration] = useState(
+    initial?.duration_minutes ?? prefill?.duration_minutes ?? 60,
+  );
+  const [location, setLocation] = useState(initial?.location ?? prefill?.location ?? "");
+  const [interviewer, setInterviewer] = useState(
+    initial?.interviewer ?? prefill?.interviewer ?? "",
+  );
+  const [notes, setNotes] = useState(initial?.notes ?? prefill?.notes ?? "");
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
