@@ -245,8 +245,10 @@ export default function PrivacyPolicyPage() {
               of these fields you have left blank. When you generate a letter, your job
               description, your stored CV profile, and your instructions are sent to the
               configured AI provider, Anthropic or OpenAI, to write it. The generated
-              letter is returned to your browser for download and is not stored on
-              canvasjob servers.
+              letter is returned to your browser and can be edited there. If you download
+              it as a PDF, the final edited text is sent to the canvasjob backend solely to
+              render the PDF in memory. Neither the generated or edited letter text nor the
+              PDF is stored on canvasjob servers.
             </Definition>
 
             <Definition title="Plan, usage, and billing information">
