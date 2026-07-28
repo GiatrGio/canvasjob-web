@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Bot, DatabaseZap, RefreshCcw, Search, Trash2, Users } from "lucide-react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Bot, ChevronRight, DatabaseZap, RefreshCcw, Search, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -379,7 +379,7 @@ function LLMAdminPanel() {
   }
 
   return (
-    <section className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_440px]">
+    <section className="space-y-4">
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <Select value={range} onValueChange={(value) => setRange(value as AdminLLMRange)}>
@@ -418,6 +418,9 @@ function LLMAdminPanel() {
           <table className="w-full min-w-[900px] text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="w-10 py-3 pl-4 pr-0">
+                  <span className="sr-only">Expand</span>
+                </th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">User</th>
                 <th className="px-4 py-3 font-medium">Model</th>
@@ -430,46 +433,72 @@ function LLMAdminPanel() {
             <tbody>
               {calls.map((call) => {
                 const cost = getCallCost(call, pricing);
+                const expanded = selectedCallId === call.id;
 
                 return (
-                  <tr
-                    key={call.id}
-                    className={cn(
-                      "cursor-pointer border-b transition-colors last:border-0 hover:bg-muted/50",
-                      selectedCallId === call.id && "bg-muted",
-                    )}
-                    onClick={() => setSelectedCallId(call.id)}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{formatCallType(call.call_type)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {call.summary ?? call.status}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {call.user_email ?? "(unknown)"}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      <div>{call.provider}</div>
-                      <div className="text-xs">{call.model}</div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {formatNumber(call.tokens_input + call.tokens_output)}
-                      <div className="text-xs">
-                        {formatNumber(call.tokens_input)} in / {formatNumber(call.tokens_output)} out
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {formatCost(cost?.value ?? null)}
-                      {cost?.estimated ? <div className="text-xs">estimated</div> : null}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {call.duration_ms == null ? "-" : `${formatNumber(call.duration_ms)} ms`}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {formatDate(call.created_at)}
-                    </td>
-                  </tr>
+                  <Fragment key={call.id}>
+                    <tr
+                      className={cn(
+                        "cursor-pointer border-b transition-colors last:border-0 hover:bg-muted/50",
+                        expanded && "bg-muted",
+                      )}
+                      onClick={() => setSelectedCallId(expanded ? null : call.id)}
+                    >
+                      <td className="py-3 pl-4 pr-0">
+                        <button
+                          type="button"
+                          aria-expanded={expanded}
+                          aria-label={expanded ? "Hide call detail" : "Show call detail"}
+                          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-background"
+                        >
+                          <ChevronRight
+                            className={cn("h-4 w-4 transition-transform", expanded && "rotate-90")}
+                          />
+                        </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium">{formatCallType(call.call_type)}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {call.summary ?? call.status}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {call.user_email ?? "(unknown)"}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        <div>{call.provider}</div>
+                        <div className="text-xs">{call.model}</div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatNumber(call.tokens_input + call.tokens_output)}
+                        <div className="text-xs">
+                          {formatNumber(call.tokens_input)} in /{" "}
+                          {formatNumber(call.tokens_output)} out
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatCost(cost?.value ?? null)}
+                        {cost?.estimated ? <div className="text-xs">estimated</div> : null}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {call.duration_ms == null ? "-" : `${formatNumber(call.duration_ms)} ms`}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatDate(call.created_at)}
+                      </td>
+                    </tr>
+                    {expanded ? (
+                      <tr className="border-b bg-muted/30 last:border-0">
+                        <td colSpan={8} className="px-4 py-4">
+                          <CallDetail
+                            call={selectedCall?.id === call.id ? selectedCall : null}
+                            loading={detailLoading}
+                            onDelete={() => deleteCall(call.id)}
+                          />
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 );
               })}
             </tbody>
@@ -487,47 +516,46 @@ function LLMAdminPanel() {
           ) : null}
         </div>
       </div>
-
-      <aside className="rounded-md border bg-card">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <div>
-            <h2 className="text-sm font-semibold">Call detail</h2>
-            <p className="text-xs text-muted-foreground">
-              {selectedCall ? formatCallType(selectedCall.call_type) : "No call selected"}
-            </p>
-          </div>
-          {selectedCall ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Delete LLM call"
-              onClick={() => deleteCall(selectedCall.id)}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          ) : null}
-        </div>
-
-        <div className="space-y-4 p-4">
-          {detailLoading ? (
-            <div className="text-sm text-muted-foreground">Loading detail...</div>
-          ) : selectedCall ? (
-            <>
-              {selectedCall.error ? (
-                <DetailBlock title="Error" value={selectedCall.error} />
-              ) : null}
-              <DetailBlock title="Prompt" value={JSON.stringify(selectedCall.prompt, null, 2)} />
-              <DetailBlock
-                title="Response"
-                value={JSON.stringify(selectedCall.response ?? null, null, 2)}
-              />
-            </>
-          ) : (
-            <div className="text-sm text-muted-foreground">Select a call.</div>
-          )}
-        </div>
-      </aside>
     </section>
+  );
+}
+
+/**
+ * Body of an expanded LLM call row. `call` is null while its detail is still
+ * being fetched — the list row only carries the summary fields.
+ */
+function CallDetail({
+  call,
+  loading,
+  onDelete,
+}: {
+  call: AdminLLMCallDetail | null;
+  loading: boolean;
+  onDelete: () => void;
+}) {
+  if (!call) {
+    return (
+      <div className="text-sm text-muted-foreground">
+        {loading ? "Loading detail..." : "Could not load this call's detail."}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {formatCallType(call.call_type)} - {call.status}
+        </div>
+        <Button variant="ghost" size="icon" aria-label="Delete LLM call" onClick={onDelete}>
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </div>
+
+      {call.error ? <DetailBlock title="Error" value={call.error} /> : null}
+      <DetailBlock title="Prompt" value={JSON.stringify(call.prompt, null, 2)} />
+      <DetailBlock title="Response" value={JSON.stringify(call.response ?? null, null, 2)} />
+    </div>
   );
 }
 
@@ -689,7 +717,7 @@ function DetailBlock({ title, value }: { title: string; value: string }) {
       <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {title}
       </div>
-      <pre className="max-h-96 overflow-auto rounded-md bg-muted p-3 text-xs leading-relaxed">
+      <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 text-xs leading-relaxed">
         {value}
       </pre>
     </div>
