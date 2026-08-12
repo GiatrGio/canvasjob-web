@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlan } from "@/lib/plan";
 import {
-  FALLBACK_COVER_LETTER_LIMIT,
-  FALLBACK_EVALUATION_LIMIT,
+  FREE_COVER_LETTER_LIMIT,
+  FREE_EVALUATION_LIMIT,
   FREE_TRACKED_JOB_LIMIT,
 } from "@/lib/limits";
 import { AppShell } from "@/components/layout/app-shell";
@@ -48,14 +48,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .eq("user_id", user.id),
   ]);
   const plan = normalizePlan(profile?.plan);
+  // The profile column is authoritative (it's what the API enforces); the free
+  // allowance is only the fallback for a row that predates the column.
   const evaluationLimit =
     typeof profile?.monthly_eval_limit === "number"
       ? profile.monthly_eval_limit
-      : FALLBACK_EVALUATION_LIMIT;
+      : FREE_EVALUATION_LIMIT;
   const coverLetterLimit =
     typeof profile?.monthly_cover_letter_limit === "number"
       ? profile.monthly_cover_letter_limit
-      : FALLBACK_COVER_LETTER_LIMIT;
+      : FREE_COVER_LETTER_LIMIT;
   const metrics: AccountMenuMetrics = {
     evaluations: {
       used: Number(usage?.evaluations_used ?? 0),

@@ -3,6 +3,7 @@ import { SignupForm } from "@/components/auth/signup-form";
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FREE_EVALUATION_LIMIT } from "@/lib/limits";
 
 type SignupPageProps = {
   searchParams?: Promise<{ next?: string | string[] }>;
@@ -32,7 +33,9 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
         <Card>
           <CardHeader>
             <CardTitle>Create your account</CardTitle>
-            <CardDescription>Free forever — 50 evaluations / month.</CardDescription>
+            <CardDescription>
+              Free forever — {FREE_EVALUATION_LIMIT} evaluations / month.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <SocialAuthButtons />

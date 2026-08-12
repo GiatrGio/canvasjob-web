@@ -7,21 +7,27 @@ import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { SubscribeButton } from "@/components/pricing/subscribe-button";
 import { CheckoutStatusToast } from "@/components/pricing/checkout-status-toast";
 import { createClient } from "@/lib/supabase/server";
+import {
+  FREE_COVER_LETTER_LIMIT,
+  FREE_EVALUATION_LIMIT,
+  FREE_TRACKED_JOB_LIMIT,
+  PRO_COVER_LETTER_LIMIT,
+} from "@/lib/limits";
 
+// Every number here comes from lib/limits (env-driven) so the page can't drift
+// from what the API actually enforces. Profile/filter counts are deliberately
+// absent: they're internal system caps, not something a buyer should weigh.
 const FREE_FEATURES = [
-  "50 job evaluations / month",
-  "Up to 5 job profiles",
-  "10 filters per profile",
-  "Track up to 5 jobs at the same time",
-  "Chrome extension on supported sites",
+  `${FREE_EVALUATION_LIMIT} job evaluations / month`,
+  `${FREE_COVER_LETTER_LIMIT} cover letters / month`,
+  `Track up to ${FREE_TRACKED_JOB_LIMIT} jobs at the same time`,
 ];
 
 // Pro is marketed as unlimited for tracked jobs. The backend still keeps a
 // high abuse ceiling so one account cannot create unbounded storage growth.
 const PRO_FEATURES = [
   "Unlimited job evaluations",
-  "Up to 5 job profiles",
-  "10 filters per profile",
+  `${PRO_COVER_LETTER_LIMIT} cover letters / month`,
   "Unlimited tracked jobs",
   "Priority support",
 ];

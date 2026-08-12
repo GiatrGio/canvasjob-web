@@ -17,6 +17,7 @@ import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { HeroIllustration } from "@/components/marketing/hero-illustration";
 import { CHROME_WEB_STORE_URL } from "@/lib/urls";
+import { FREE_EVALUATION_LIMIT } from "@/lib/limits";
 
 const SCREENSHOTS = {
   extensionFilterEvaluation: "/marketing/screenshots/extension-filter-evaluation.png",
@@ -177,7 +178,7 @@ export default function LandingPage() {
                 </Button>
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
-                Free forever for 50 evaluations / month. No credit card.
+                Free forever for {FREE_EVALUATION_LIMIT} evaluations / month. No credit card.
               </p>
             </div>
 
@@ -453,7 +454,7 @@ export default function LandingPage() {
                 },
                 {
                   q: "Can I cancel anytime?",
-                  a: "Yes. Pro is monthly, no commitment. Your tracker and filters stay; you just drop back to the free 50 evaluations / month.",
+                  a: `Yes. Pro is monthly, no commitment. Your tracker and filters stay; you just drop back to the free ${FREE_EVALUATION_LIMIT} evaluations / month.`,
                 },
               ].map((item) => (
                 <div key={item.q} className="rounded-lg border bg-card p-5">
