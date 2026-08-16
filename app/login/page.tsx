@@ -3,6 +3,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isSafeInternalPath } from "@/lib/auth-redirect";
 
 type LoginPageProps = {
   searchParams?: Promise<{ next?: string | string[] }>;
@@ -10,10 +11,7 @@ type LoginPageProps = {
 
 function getSafeNext(value: string | string[] | undefined) {
   const next = Array.isArray(value) ? value[0] : value;
-  if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return null;
-  }
-  return next;
+  return isSafeInternalPath(next) ? next : null;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {

@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
+import { safeInternalPath } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/server";
-
-function getSafeRedirectPath(value: string | null) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return "/app";
-  }
-  return value;
-}
 
 /**
  * The origin the browser actually used. `request.url` is not it: Next rewrites
@@ -27,7 +21,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const origin = getBrowserOrigin(request, url);
   const code = url.searchParams.get("code");
-  const redirectPath = getSafeRedirectPath(url.searchParams.get("next"));
+  const redirectPath = safeInternalPath(url.searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();

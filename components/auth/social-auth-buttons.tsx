@@ -5,6 +5,7 @@ import type { Provider } from "@supabase/supabase-js";
 import { Chrome, Linkedin, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { safeInternalPath } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/client";
 
 type SocialProvider = {
@@ -20,10 +21,7 @@ const PROVIDERS: SocialProvider[] = [
 
 function getRedirectPath() {
   const next = new URLSearchParams(window.location.search).get("next");
-  if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/app";
-  }
-  return next;
+  return safeInternalPath(next);
 }
 
 export function SocialAuthButtons() {

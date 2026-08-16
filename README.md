@@ -21,6 +21,8 @@ Marketing site + authenticated dashboard for **canvasjob**. Talks to the FastAPI
 | `/pricing` | public | Free + Pro tiers. Pro uses Stripe Checkout and the Stripe Customer Portal. |
 | `/app` | required | **Tracker dashboard** — list of every saved/applied job. |
 | `/app/jobs/[id]` | required | Individual job detail — generic, source-agnostic. |
+| `/auth/extension` | one-time ticket | Exchanges an extension handoff and installs/reuses the website cookie session. |
+| `/auth/extension/confirm` | one-time ticket | Account choice when extension and website users differ. |
 
 The `/app/*` group lives under `app/(app)/` and is gated by `app/(app)/layout.tsx`, which redirects to `/login` if there's no Supabase session.
 
@@ -42,6 +44,7 @@ The backend must be running on `NEXT_PUBLIC_API_URL` (default `http://localhost:
 - The browser uses `@supabase/ssr`'s `createBrowserClient` to sign in / sign up. Tokens are persisted in cookies that Next.js can read server-side.
 - Server components read the session with `createServerClient` (see `lib/supabase/server.ts`) and redirect when missing.
 - Every API call goes through `lib/api.ts`, which pulls the access token off the current Supabase session and sends it as `Authorization: Bearer <jwt>`. The FastAPI backend verifies it via JWKS — same path the extension uses.
+- Extension navigation enters through `/auth/extension?ticket=...`. The route exchanges the short-lived ticket with FastAPI server-to-server, verifies the returned Supabase email token hash when a website session is needed, and redirects to the backend-stored destination. Handoff redirects are non-cacheable and use a no-referrer policy. A different existing website user requires an explicit choice under `/auth/extension/confirm`.
 
 ## Conventions
 

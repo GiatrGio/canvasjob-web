@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { safeInternalPath } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,7 @@ export function SignupForm({ loginHref = "/login" }: SignupFormProps) {
     setLoading(true);
     const supabase = createClient();
     const next = new URLSearchParams(window.location.search).get("next");
-    const redirectPath = next?.startsWith("/") ? next : "/app";
+    const redirectPath = safeInternalPath(next);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { safeInternalPath } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +31,7 @@ export function LoginForm({ signupHref = "/signup" }: LoginFormProps) {
       return;
     }
     const next = new URLSearchParams(window.location.search).get("next");
-    router.push(next?.startsWith("/") ? next : "/app");
+    router.push(safeInternalPath(next));
     router.refresh();
   }
 
@@ -42,7 +43,7 @@ export function LoginForm({ signupHref = "/signup" }: LoginFormProps) {
     setLoading(true);
     const supabase = createClient();
     const next = new URLSearchParams(window.location.search).get("next");
-    const redirectPath = next?.startsWith("/") ? next : "/app";
+    const redirectPath = safeInternalPath(next);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
