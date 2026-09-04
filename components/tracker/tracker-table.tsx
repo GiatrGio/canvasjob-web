@@ -33,7 +33,6 @@ import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAppSettings } from "@/components/layout/app-settings";
 import { StatusBadge } from "@/components/tracker/status-badge";
 import { StatusSelect } from "@/components/tracker/status-select";
 import {
@@ -648,7 +647,6 @@ function KanbanBoard({
   onStatusChange: (id: string, next: ApplicationStatus) => void;
   onDelete: (id: string) => void;
 }) {
-  const { showBreakdown } = useAppSettings();
   const byStatus = useMemo(() => {
     const grouped: Record<ApplicationStatus, ApplicationListItem[]> = {
       saved: [],
@@ -684,7 +682,6 @@ function KanbanBoard({
             items={byStatus[status]}
             draggingId={draggingId}
             nonSavedTotal={nonSavedTotal}
-            showPercentages={showBreakdown}
             isDragging={isDragging}
             isOver={dragOverStatus === status}
             onDragStart={onDragStart}
@@ -708,8 +705,7 @@ function KanbanBoard({
               items={byStatus[status]}
               draggingId={draggingId}
               nonSavedTotal={nonSavedTotal}
-              showPercentages={showBreakdown}
-              isDragging={isDragging}
+                isDragging={isDragging}
               isOver={dragOverStatus === status}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
@@ -730,7 +726,6 @@ function KanbanColumn({
   items,
   draggingId,
   nonSavedTotal,
-  showPercentages,
   isDragging,
   isOver,
   onDragStart,
@@ -744,7 +739,6 @@ function KanbanColumn({
   items: ApplicationListItem[];
   draggingId: string | null;
   nonSavedTotal: number;
-  showPercentages: boolean;
   isDragging: boolean;
   isOver: boolean;
   onDragStart: (id: string) => void;
@@ -788,7 +782,7 @@ function KanbanColumn({
           <StatusBadge status={status} />
           <span className="text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">{items.length}</span>
-            {showPercentages && share ? (
+            {share ? (
               <span className="ml-1 text-muted-foreground/80">({share})</span>
             ) : null}
           </span>
