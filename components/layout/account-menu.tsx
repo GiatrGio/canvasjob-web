@@ -13,9 +13,7 @@ import {
   type LucideProps,
 } from "lucide-react";
 import type { Plan } from "@/lib/plan";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useAppSettings } from "@/components/layout/app-settings";
 
 export type AccountMenuMetrics = {
   evaluations: {
@@ -40,15 +38,16 @@ export function AccountMenu({
   plan,
   metrics,
   onSignOut,
+  onOpenSettings,
 }: {
   userEmail: string;
   plan: Plan;
   metrics: AccountMenuMetrics;
   onSignOut: () => Promise<void>;
+  onOpenSettings: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { showBreakdown, setShowBreakdown } = useAppSettings();
 
   useEffect(() => {
     if (!open) return;
@@ -128,14 +127,15 @@ export function AccountMenu({
           <MenuSection>
             <button
               type="button"
-              role="menuitemcheckbox"
-              aria-checked={showBreakdown}
+              role="menuitem"
               className="flex h-11 w-full items-center gap-3 rounded-md px-2 text-left text-sm transition-colors hover:bg-accent"
-              onClick={() => setShowBreakdown(!showBreakdown)}
+              onClick={() => {
+                setOpen(false);
+                onOpenSettings();
+              }}
             >
               <Settings className="h-5 w-5 shrink-0" aria-hidden="true" />
-              <span className="min-w-0 flex-1">Show breakdown</span>
-              <Switch checked={showBreakdown} />
+              <span className="min-w-0 flex-1">Settings</span>
             </button>
           </MenuSection>
 
@@ -224,24 +224,5 @@ function MetricRow({
         </div>
       </div>
     </div>
-  );
-}
-
-function Switch({ checked }: { checked: boolean }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-        checked ? "bg-primary" : "bg-muted-foreground/30",
-      )}
-    >
-      <span
-        className={cn(
-          "inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform",
-          checked ? "translate-x-4" : "translate-x-0.5",
-        )}
-      />
-    </span>
   );
 }

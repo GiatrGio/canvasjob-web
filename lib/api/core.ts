@@ -27,7 +27,23 @@ import type {
   AdminLLMRange,
   AdminPlan,
   AdminUser,
+  CoverLetterInstructionsValidationRequest,
+  CoverLetterInstructionsValidationResponse,
+  CoverLetterSettings,
+  CoverLetterSettingsResponse,
+  CvProfile,
+  CvProfileResponse,
+  FilterCreate,
+  FilterOut,
+  FilterProfileCreate,
+  FilterProfileOut,
+  FilterProfileUpdate,
+  FilterProfileWithFilters,
+  FilterUpdate,
+  FilterValidationRequest,
+  FilterValidationResponse,
   MeResponse,
+  ReorderRequest,
 } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -42,6 +58,9 @@ export type TokenGetter = () => Promise<string | null>;
 
 export interface Api {
   me(): Promise<MeResponse>;
+  // Irreversible: deletes the caller's auth user, which cascades every table
+  // that references it. The account comes from the token, not an argument.
+  deleteAccount(): Promise<void>;
   applications: {
     list(): Promise<ApplicationListItem[]>;
     get(id: string): Promise<Application>;
@@ -82,6 +101,39 @@ export interface Api {
       get(): Promise<AdminLLMPricing>;
     };
   };
+  // --- Settings -------------------------------------------------------------
+  // Filter profiles + their filters, the CV behind job fit, and the cover
+  // letter defaults. All browser-side: the Settings dialog is a client
+  // component, so these never run through lib/api/server.ts.
+  profiles: {
+    list(): Promise<FilterProfileWithFilters[]>;
+    create(body: FilterProfileCreate): Promise<FilterProfileOut>;
+    update(id: string, body: FilterProfileUpdate): Promise<FilterProfileOut>;
+    delete(id: string): Promise<void>;
+    activate(id: string): Promise<FilterProfileOut>;
+    reorder(body: ReorderRequest): Promise<FilterProfileOut[]>;
+  };
+  filters: {
+    create(profileId: string, body: FilterCreate): Promise<FilterOut>;
+    update(id: string, body: FilterUpdate): Promise<FilterOut>;
+    delete(id: string): Promise<void>;
+    reorder(profileId: string, body: ReorderRequest): Promise<FilterOut[]>;
+    validate(body: FilterValidationRequest): Promise<FilterValidationResponse>;
+  };
+  cv: {
+    // 200 + null when the user has not uploaded a CV yet.
+    get(): Promise<CvProfileResponse | null>;
+    upload(file: File): Promise<CvProfileResponse>;
+    update(profile: CvProfile): Promise<CvProfileResponse>;
+    delete(): Promise<void>;
+  };
+  coverLetter: {
+    getSettings(): Promise<CoverLetterSettingsResponse>;
+    updateSettings(settings: CoverLetterSettings): Promise<CoverLetterSettingsResponse>;
+    validateInstructions(
+      body: CoverLetterInstructionsValidationRequest,
+    ): Promise<CoverLetterInstructionsValidationResponse>;
+  };
 }
 
 export function makeApi(getToken: TokenGetter): Api {
@@ -121,8 +173,34 @@ export function makeApi(getToken: TokenGetter): Api {
     return body as T;
   }
 
+  // Multipart upload (CV file). Deliberately does NOT set Content-Type — the
+  // browser adds the multipart boundary itself.
+  async function requestForm<T>(path: string, form: FormData): Promise<T> {
+    const token = await getToken();
+    if (!token) {
+      throw new ApiError(401, "not authenticated");
+    }
+
+    const res = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      body: form,
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+
+    const text = await res.text();
+    const body = parseResponseBody(text);
+
+    if (!res.ok) {
+      throw new ApiError(res.status, errorMessageFromBody(body, res.statusText), body);
+    }
+
+    return body as T;
+  }
+
   return {
     me: () => request<MeResponse>("/me"),
+    deleteAccount: () => request<void>("/me", { method: "DELETE" }),
     applications: {
       list: () => request<ApplicationListItem[]>("/applications"),
       get: (id) => request<Application>(`/applications/${id}`),
@@ -197,6 +275,79 @@ export function makeApi(getToken: TokenGetter): Api {
       llmPricing: {
         get: () => request<AdminLLMPricing>("/admin/llm-pricing"),
       },
+    },
+    profiles: {
+      list: () => request<FilterProfileWithFilters[]>("/profiles"),
+      create: (body) =>
+        request<FilterProfileOut>("/profiles", {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      update: (id, body) =>
+        request<FilterProfileOut>(`/profiles/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        }),
+      delete: (id) => request<void>(`/profiles/${id}`, { method: "DELETE" }),
+      activate: (id) =>
+        request<FilterProfileOut>(`/profiles/${id}/activate`, { method: "POST" }),
+      reorder: (body) =>
+        request<FilterProfileOut[]>("/profiles/reorder", {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        }),
+    },
+    filters: {
+      create: (profileId, body) =>
+        request<FilterOut>(`/profiles/${profileId}/filters`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+      update: (id, body) =>
+        request<FilterOut>(`/filters/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        }),
+      delete: (id) => request<void>(`/filters/${id}`, { method: "DELETE" }),
+      reorder: (profileId, body) =>
+        request<FilterOut[]>(`/profiles/${profileId}/filters/reorder`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        }),
+      validate: (body) =>
+        request<FilterValidationResponse>("/filters/validate", {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
+    },
+    cv: {
+      get: () => request<CvProfileResponse | null>("/cv"),
+      upload: (file) => {
+        const form = new FormData();
+        form.append("file", file);
+        return requestForm<CvProfileResponse>("/cv", form);
+      },
+      // Save a user-edited profile (e.g. added skills). Re-hashes server-side,
+      // so the next job view re-evaluates fit against the edited profile.
+      update: (profile) =>
+        request<CvProfileResponse>("/cv", {
+          method: "PUT",
+          body: JSON.stringify(profile),
+        }),
+      delete: () => request<void>("/cv", { method: "DELETE" }),
+    },
+    coverLetter: {
+      getSettings: () => request<CoverLetterSettingsResponse>("/cover-letter/settings"),
+      updateSettings: (settings) =>
+        request<CoverLetterSettingsResponse>("/cover-letter/settings", {
+          method: "PUT",
+          body: JSON.stringify(settings),
+        }),
+      validateInstructions: (body) =>
+        request<CoverLetterInstructionsValidationResponse>(
+          "/cover-letter/settings/validate-instructions",
+          { method: "POST", body: JSON.stringify(body) },
+        ),
     },
   };
 }

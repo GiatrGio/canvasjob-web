@@ -213,3 +213,157 @@ export interface AdminLLMPricing {
 export interface AdminDeleteResult {
   deleted_count: number;
 }
+
+// ---------------------------------------------------------------------------
+// Settings — filter profiles, job fit (CV), cover letter
+//
+// Mirrors app/schemas/{profile,filter,cv,cover_letter}.py. These moved here
+// from the Chrome extension's options page when settings were consolidated
+// into the web app; the extension's src/shared/types.ts keeps the copies it
+// still needs for the side panel.
+// ---------------------------------------------------------------------------
+
+// Two filter shapes the backend distinguishes (see migration 0006).
+export type FilterKind = "criterion" | "question";
+
+// Caps must match app/schemas/profile.py and app/schemas/filter.py.
+export const FILTER_TEXT_MAX = 200;
+export const PROFILE_NAME_MAX = 50;
+export const MAX_PROFILES_PER_USER = 5;
+export const MAX_FILTERS_PER_PROFILE = 10;
+
+// Marker for the auto-seeded starter profile. Must match the backend's
+// STARTER_PROFILE_NAME in app/routers/profiles.py — the filters tab uses it to
+// decide whether to show the "edit or delete me" banner.
+export const STARTER_PROFILE_NAME = "Starter pack";
+
+export interface UsageOut {
+  used: number;
+  limit: number;
+  period: string; // 'YYYY-MM'
+  warning_threshold?: number;
+}
+
+export interface FilterOut {
+  id: string;
+  user_id: string;
+  profile_id: string;
+  text: string;
+  position: number;
+  enabled: boolean;
+  kind: FilterKind;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FilterCreate {
+  text: string;
+  position?: number;
+  enabled?: boolean;
+  kind?: FilterKind;
+}
+
+export interface FilterUpdate {
+  text?: string;
+  position?: number;
+  enabled?: boolean;
+  kind?: FilterKind;
+}
+
+export interface FilterProfileOut {
+  id: string;
+  user_id: string;
+  name: string;
+  position: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FilterProfileWithFilters extends FilterProfileOut {
+  filters: FilterOut[];
+}
+
+export interface FilterProfileCreate {
+  name: string;
+}
+
+export interface FilterProfileUpdate {
+  name?: string;
+}
+
+export interface ReorderRequest {
+  ids: string[];
+}
+
+// Filter quality validation. The backend classifies a single user-supplied
+// filter into one of three buckets so the UI can either accept silently
+// (good), warn but allow (vague), or block (rejected).
+export type FilterValidationVerdict = "good" | "vague" | "rejected";
+
+export interface FilterValidationRequest {
+  text: string;
+}
+
+export interface FilterValidationResponse {
+  verdict: FilterValidationVerdict;
+  reason: string;
+  suggestion: string | null;
+  kind: FilterKind;
+  usage: UsageOut;
+}
+
+// --- CV profile (job fit) ---------------------------------------------------
+// Only non-PII professional signal is stored; the uploaded file is parsed
+// server-side and discarded (no name/email/phone).
+export type Seniority = "junior" | "mid" | "senior" | "lead" | "principal" | "unknown";
+
+export interface CvProfile {
+  skills: string[];
+  years_experience: number | null;
+  seniority: Seniority;
+  titles: string[];
+  domains: string[];
+  education: string[];
+  languages: string[];
+  summary: string;
+}
+
+export interface CvProfileResponse {
+  profile: CvProfile;
+  updated_at: string | null;
+}
+
+// --- Cover letter -----------------------------------------------------------
+// The identity block IS stored server-side (the user's choice); only
+// `instructions` reaches the LLM.
+export const COVER_LETTER_INSTRUCTIONS_MAX = 2000;
+export const COVER_LETTER_FULL_NAME_MAX = 120;
+export const COVER_LETTER_EMAIL_MAX = 160;
+export const COVER_LETTER_PHONE_MAX = 40;
+export const COVER_LETTER_LOCATION_MAX = 160;
+
+export interface CoverLetterSettings {
+  // Single block: how the letter should read + any achievements to emphasize.
+  instructions: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  location: string;
+}
+
+export interface CoverLetterSettingsResponse {
+  settings: CoverLetterSettings;
+  updated_at: string | null;
+}
+
+export interface CoverLetterInstructionsValidationRequest {
+  text: string;
+}
+
+export interface CoverLetterInstructionsValidationResponse {
+  verdict: FilterValidationVerdict;
+  reason: string;
+  suggestion: string | null;
+  usage: UsageOut;
+}
