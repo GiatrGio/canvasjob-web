@@ -90,9 +90,11 @@ export default async function PricingPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Pro</CardTitle>
+                {/* Re-enable when the Pro plan is ready for public release.
                 <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
                   Most popular
                 </span>
+                */}
               </div>
               <CardDescription>For active job hunters.</CardDescription>
               <div className="pt-4">
