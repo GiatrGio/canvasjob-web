@@ -305,10 +305,20 @@ export interface FilterValidationRequest {
   text: string;
 }
 
+// A ready-to-save rewrite the validator offers for a vague filter. Picking one
+// saves it straight away — the validator wrote it, so it isn't checked again.
+export interface SuggestedFilter {
+  text: string;
+  kind: FilterKind;
+}
+
 export interface FilterValidationResponse {
   verdict: FilterValidationVerdict;
   reason: string;
   suggestion: string | null;
+  // Populated on vague verdicts only. Optional so an older backend that
+  // doesn't send it still type-checks at the call site.
+  suggested_filters?: SuggestedFilter[];
   kind: FilterKind;
   usage: UsageOut;
 }

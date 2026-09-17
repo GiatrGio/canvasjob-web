@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Check, Loader2, ShieldAlert, X } from "lucide-react";
+import { AlertTriangle, Check, Loader2, Plus, ShieldAlert, X } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/core";
 import {
@@ -9,14 +9,15 @@ import {
   type FilterKind,
   type FilterValidationResponse,
   type FilterValidationVerdict,
+  type SuggestedFilter,
 } from "@/lib/types";
 
-// Drives the new-filter flow's per-attempt UI. `idle` is the default;
+// Drives the filter editor's per-attempt UI. `idle` is the default;
 // `validating` shows a spinner while the LLM call is in flight; `verdict`
 // surfaces the LLM's bucket so the user can either save anyway (vague),
-// edit (rejected), or get an actionable suggestion. `quota` and `error`
-// cover the not-success paths that aren't a verdict. Successful or
-// save-anyway paths read `kind` from `lastValidated`, see below.
+// pick one of its suggested rewrites (vague), or edit (rejected). `quota`
+// and `error` cover the not-success paths that aren't a verdict. Successful
+// or save-anyway paths read `kind` from `lastValidated`, see below.
 type DraftValidationState =
   | { kind: "idle" }
   | { kind: "validating" }
@@ -25,34 +26,46 @@ type DraftValidationState =
       verdict: FilterValidationVerdict;
       reason: string;
       suggestion: string | null;
+      suggestedFilters: SuggestedFilter[];
     }
   | { kind: "quota" }
   | { kind: "error"; message: string };
 
-// New-filter editor: validates the typed filter through the backend
-// (good / vague / rejected) before it's saved, so the same quality checks
-// apply everywhere a filter is created.
+// Filter editor: validates the typed filter through the backend
+// (good / vague / rejected) before it's saved. Used for new filters and for
+// edits to saved ones, so the same quality checks apply whenever a filter's
+// text is written.
 export function NewFilterDraft({
   onConfirm,
   onCancel,
+  originalText,
 }: {
   // Carries the validated FilterKind so the parent can store it on the
-  // new filter row. Undefined when validation didn't complete (quota /
-  // error / save-anyway-without-LLM); the backend defaults to criterion.
+  // filter row. Undefined when validation didn't complete (quota / error /
+  // save-anyway-without-LLM); the backend defaults to criterion.
   onConfirm: (text: string, kind: FilterKind | undefined) => Promise<void>;
   onCancel: () => void;
+  // Set when editing a saved filter: seeds the text, and confirming it
+  // unchanged just closes the editor instead of spending a validation.
+  originalText?: string;
 }) {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(originalText ?? "");
   const [busy, setBusy] = useState(false);
   const [validation, setValidation] = useState<DraftValidationState>({ kind: "idle" });
   // Latest LLM-classified kind for the current text. Cleared whenever
   // the text changes (so a stale kind never gets persisted alongside
   // edited text). Read by every save path that goes through the LLM.
   const [lastValidatedKind, setLastValidatedKind] = useState<FilterKind | null>(null);
+  // Text of the suggested rewrite being saved, for its spinner.
+  const [pickedSuggestion, setPickedSuggestion] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    textareaRef.current?.focus();
+    const el = textareaRef.current;
+    if (!el) return;
+    el.focus();
+    // When editing, put the caret after the saved text rather than before it.
+    el.setSelectionRange(el.value.length, el.value.length);
   }, []);
 
   useEffect(() => {
@@ -76,6 +89,11 @@ export function NewFilterDraft({
   async function attemptSave() {
     const trimmed = text.trim();
     if (!trimmed || busy) return;
+    if (trimmed === originalText) {
+      // Nothing changed, so there's nothing to check or save.
+      onCancel();
+      return;
+    }
     setBusy(true);
     setValidation({ kind: "validating" });
 
@@ -117,6 +135,7 @@ export function NewFilterDraft({
       verdict: result.verdict,
       reason: result.reason,
       suggestion: result.suggestion,
+      suggestedFilters: result.suggested_filters ?? [],
     });
   }
 
@@ -131,6 +150,21 @@ export function NewFilterDraft({
       await onConfirm(trimmed, lastValidatedKind ?? undefined);
     } catch {
       setBusy(false);
+    }
+  }
+
+  // The validator wrote the suggestion, so it's saved as-is with the kind it
+  // came with — no second check.
+  async function pickSuggestion(suggestion: SuggestedFilter) {
+    if (busy) return;
+    setBusy(true);
+    setPickedSuggestion(suggestion.text);
+    try {
+      await onConfirm(suggestion.text, suggestion.kind);
+    } catch {
+      // Leave the verdict panel up so the user can retry or pick another.
+      setBusy(false);
+      setPickedSuggestion(null);
     }
   }
 
@@ -195,7 +229,11 @@ export function NewFilterDraft({
               className="inline-flex h-8 items-center gap-1.5 rounded-md bg-amber-500 px-2.5 text-xs font-medium text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
               title="Save this filter anyway"
             >
-              {busy ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+              {busy && pickedSuggestion === null ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Check size={14} />
+              )}
               Save anyway
             </button>
           ) : (
@@ -239,6 +277,10 @@ export function NewFilterDraft({
           verdict={validation.verdict}
           reason={validation.reason}
           suggestion={validation.suggestion}
+          suggestedFilters={validation.suggestedFilters}
+          pickedSuggestion={pickedSuggestion}
+          pickDisabled={busy}
+          onPick={pickSuggestion}
           onEdit={backToEdit}
         />
       )}
@@ -300,28 +342,58 @@ function ValidationPanel({
   verdict,
   reason,
   suggestion,
+  suggestedFilters,
+  pickedSuggestion,
+  pickDisabled,
+  onPick,
   onEdit,
 }: {
   verdict: FilterValidationVerdict;
   reason: string;
   suggestion: string | null;
+  suggestedFilters: SuggestedFilter[];
+  pickedSuggestion: string | null;
+  pickDisabled: boolean;
+  onPick: (suggestion: SuggestedFilter) => void;
   onEdit: () => void;
 }) {
   if (verdict === "vague") {
+    const hasSuggestions = suggestedFilters.length > 0;
     return (
       <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-background px-3 py-2 text-xs">
         <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" />
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <div className="font-medium text-amber-800">This filter looks vague.</div>
           <div className="mt-0.5 text-muted-foreground">{reason}</div>
-          {suggestion && (
-            <div className="mt-1.5 rounded bg-amber-50 px-2 py-1 text-foreground">
+          {(suggestion || hasSuggestions) && (
+            <div className="mt-1.5 rounded bg-amber-50 px-2 py-1.5 text-foreground">
               <span className="font-medium">Try: </span>
-              {suggestion}
+              {suggestion ?? "one of these"}
+              {hasSuggestions && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {suggestedFilters.map((s) => (
+                    <button
+                      key={s.text}
+                      type="button"
+                      onClick={() => onPick(s)}
+                      disabled={pickDisabled}
+                      title="Use this filter"
+                      className="inline-flex max-w-full items-center gap-1 rounded-full border border-amber-300 bg-background px-2.5 py-1 text-left font-medium text-foreground transition-colors hover:border-amber-400 hover:bg-amber-100 disabled:opacity-60"
+                    >
+                      {pickedSuggestion === s.text ? (
+                        <Loader2 size={12} className="shrink-0 animate-spin text-amber-600" />
+                      ) : (
+                        <Plus size={12} className="shrink-0 text-amber-600" />
+                      )}
+                      <span className="min-w-0">{s.text}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <div className="mt-1.5 text-muted-foreground">
-            Click{" "}
+            {hasSuggestions ? "Pick a suggestion, click " : "Click "}
             <button
               type="button"
               onClick={onEdit}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -16,11 +16,10 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Lightbulb, Plus, Star, Trash2, X } from "lucide-react";
+import { GripVertical, Lightbulb, Pencil, Plus, Star, Trash2, X } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/core";
 import {
-  FILTER_TEXT_MAX,
   MAX_FILTERS_PER_PROFILE,
   MAX_PROFILES_PER_USER,
   PROFILE_NAME_MAX,
@@ -582,6 +581,8 @@ function FilterEditor({
       mutators.addFilter(profile.id, created);
     } catch (err) {
       onError(err instanceof ApiError ? err.message : String(err));
+      // Rethrow so the draft drops its spinner and lets the user retry.
+      throw err;
     }
   }
 
@@ -662,32 +663,22 @@ function FilterCard({
   dragAttributes: ReturnType<typeof useSortable>["attributes"];
   dragListeners: ReturnType<typeof useSortable>["listeners"];
 }) {
-  const [text, setText] = useState(filter.text);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [editing, setEditing] = useState(false);
 
-  useEffect(() => setText(filter.text), [filter.text]);
-
-  // Auto-grow textarea to fit its content.
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, [text]);
-
-  async function commitText() {
-    const t = text.trim();
-    if (!t) {
-      setText(filter.text);
-      return;
-    }
-    if (t === filter.text) return;
+  // Edits go through the same validated editor as new filters. Rethrows so the
+  // editor can reset and let the user retry; a missing kind (the check couldn't
+  // run) leaves the stored kind as it was.
+  async function saveEdit(text: string, kind: FilterKind | undefined) {
     try {
-      const updated = await api.filters.update(filter.id, { text: t });
+      const updated = await api.filters.update(filter.id, {
+        text,
+        ...(kind ? { kind } : {}),
+      });
       mutators.updateFilter(updated);
+      setEditing(false);
     } catch (err) {
       onError(err instanceof ApiError ? err.message : String(err));
-      setText(filter.text);
+      throw err;
     }
   }
 
@@ -708,6 +699,16 @@ function FilterCard({
     } catch (err) {
       onError(err instanceof ApiError ? err.message : String(err));
     }
+  }
+
+  if (editing) {
+    return (
+      <NewFilterDraft
+        originalText={filter.text}
+        onConfirm={saveEdit}
+        onCancel={() => setEditing(false)}
+      />
+    );
   }
 
   return (
@@ -746,38 +747,32 @@ function FilterCard({
         </span>
       </label>
 
-      {/* Multi-line text input */}
-      <div className="min-w-0 flex-1">
-        <textarea
-          ref={textareaRef}
-          value={text}
-          maxLength={FILTER_TEXT_MAX}
-          rows={1}
-          onChange={(e) => setText(e.target.value)}
-          onBlur={commitText}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              (e.target as HTMLTextAreaElement).blur();
-            }
-          }}
-          className="w-full resize-none overflow-hidden rounded-md border border-input bg-background px-3 py-2 text-sm leading-relaxed outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20"
-        />
-        <div className="mt-1 text-right text-xs text-muted-foreground">
-          {text.length} / {FILTER_TEXT_MAX}
-        </div>
-      </div>
+      {/* Read-only until Edit, so a change can't skip the quality check */}
+      <p className="min-w-0 flex-1 whitespace-pre-wrap break-words pt-1 text-sm leading-relaxed text-foreground">
+        {filter.text}
+      </p>
 
-      {/* Delete with icon + label */}
-      <button
-        onClick={remove}
-        className="flex shrink-0 flex-col items-center gap-0.5 px-2 py-1 text-muted-foreground hover:text-destructive"
-        title="Delete filter"
-        aria-label="Delete filter"
-      >
-        <Trash2 size={18} />
-        <span className="text-xs">Delete</span>
-      </button>
+      {/* Edit + Delete, each with icon + label */}
+      <div className="flex shrink-0 items-start">
+        <button
+          onClick={() => setEditing(true)}
+          className="flex flex-col items-center gap-0.5 px-2 py-1 text-muted-foreground hover:text-foreground"
+          title="Edit filter"
+          aria-label="Edit filter"
+        >
+          <Pencil size={18} />
+          <span className="text-xs">Edit</span>
+        </button>
+        <button
+          onClick={remove}
+          className="flex flex-col items-center gap-0.5 px-2 py-1 text-muted-foreground hover:text-destructive"
+          title="Delete filter"
+          aria-label="Delete filter"
+        >
+          <Trash2 size={18} />
+          <span className="text-xs">Delete</span>
+        </button>
+      </div>
     </div>
   );
 }
