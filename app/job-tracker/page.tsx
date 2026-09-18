@@ -17,9 +17,10 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TrackedLink } from "@/components/analytics/tracked-link";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
-import { CHROME_WEB_STORE_URL } from "@/lib/urls";
+import { chromeWebStoreUrl } from "@/lib/urls";
 
 export const metadata: Metadata = {
   title: "Job tracker",
@@ -184,10 +185,16 @@ export default function JobTrackerPage() {
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
+                  <TrackedLink
+                    href={chromeWebStoreUrl("job_tracker_hero")}
+                    target="_blank"
+                    rel="noreferrer"
+                    analyticsEvent="extension_install_clicked"
+                    analyticsParams={{ placement: "job_tracker_hero" }}
+                  >
                     <Chrome className="h-4 w-4" />
                     Start tracking jobs
-                  </Link>
+                  </TrackedLink>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                   <Link href="/pricing">
@@ -376,10 +383,16 @@ export default function JobTrackerPage() {
                 size="lg"
                 className="w-full bg-white text-emerald-900 hover:bg-emerald-50 sm:w-auto"
               >
-                <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
+                <TrackedLink
+                  href={chromeWebStoreUrl("job_tracker_final")}
+                  target="_blank"
+                  rel="noreferrer"
+                  analyticsEvent="extension_install_clicked"
+                  analyticsParams={{ placement: "job_tracker_final" }}
+                >
                   Start free
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </TrackedLink>
               </Button>
               <Button
                 asChild

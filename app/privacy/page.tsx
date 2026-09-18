@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AnalyticsPreferencesButton } from "@/components/analytics/analytics-preferences-button";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     "How canvasjob collects, uses, stores, and shares data in its Chrome extension and web application.",
 };
 
-const LAST_UPDATED = "June 28, 2026";
+const LAST_UPDATED = "September 18, 2026";
 
 const serviceProviders = [
   {
@@ -36,6 +37,11 @@ const serviceProviders = [
     name: "Google",
     data: "Authentication information when you choose Continue with Google",
     purpose: "Provide the optional Google sign-in flow",
+  },
+  {
+    name: "Google Analytics",
+    data: "With your consent, public-page visits, browser and device information, referring campaign information, and limited conversion events",
+    purpose: "Measure website acquisition and improve public pages; job, CV, filter, application, and account content is not sent",
   },
 ] as const;
 
@@ -263,6 +269,16 @@ export default function PrivacyPolicyPage() {
               information associated with requests, such as IP address, browser or
               device information, request time, and diagnostic logs, in order to
               provide, protect, and troubleshoot the service.
+            </Definition>
+
+            <Definition title="Optional website analytics">
+              Google Analytics runs only after you accept analytics. It measures public
+              page visits, referral campaigns, general browser and device information,
+              and limited actions such as opening the Chrome Web Store or starting
+              sign-in or checkout. It does not run on private app, admin, or
+              authentication routes, and we do not send job descriptions, CVs, filters,
+              applications, notes, or account content. Your choice is stored in your
+              browser. <AnalyticsPreferencesButton />.
             </Definition>
           </PolicySection>
 

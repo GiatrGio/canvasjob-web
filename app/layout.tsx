@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
+import { AnalyticsConsentGate } from "@/components/analytics/analytics-consent";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.canvasjob.com";
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-2YDL58KX30";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -41,6 +43,7 @@ export default function RootLayout({
       <body>
         {children}
         <Toaster position="top-center" richColors />
+        <AnalyticsConsentGate gaId={gaId} />
       </body>
     </html>
   );

@@ -13,10 +13,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { TrackedLink } from "@/components/analytics/tracked-link";
 import { CanvasjobLogo } from "@/components/brand/canvasjob-logo";
 import { SiteHeaderActions } from "@/components/layout/site-header-actions";
 import { HeroIllustration } from "@/components/marketing/hero-illustration";
-import { CHROME_WEB_STORE_URL } from "@/lib/urls";
+import { chromeWebStoreUrl } from "@/lib/urls";
 import { FREE_EVALUATION_LIMIT } from "@/lib/limits";
 
 const SCREENSHOTS = {
@@ -165,10 +166,16 @@ export default function LandingPage() {
               </p>
               <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
+                  <TrackedLink
+                    href={chromeWebStoreUrl("homepage_hero")}
+                    target="_blank"
+                    rel="noreferrer"
+                    analyticsEvent="extension_install_clicked"
+                    analyticsParams={{ placement: "homepage_hero" }}
+                  >
                     <Chrome className="h-4 w-4" />
                     Add to Chrome — free
-                  </Link>
+                  </TrackedLink>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                   <Link href="#how-it-works">
@@ -482,10 +489,16 @@ export default function LandingPage() {
                 size="lg"
                 className="w-full bg-white text-emerald-900 hover:bg-emerald-50 sm:w-auto"
               >
-                <Link href={CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
+                <TrackedLink
+                  href={chromeWebStoreUrl("homepage_final")}
+                  target="_blank"
+                  rel="noreferrer"
+                  analyticsEvent="extension_install_clicked"
+                  analyticsParams={{ placement: "homepage_final" }}
+                >
                   <Chrome className="h-4 w-4" />
                   Add to Chrome — free
-                </Link>
+                </TrackedLink>
               </Button>
               <Button
                 asChild

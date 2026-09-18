@@ -7,6 +7,7 @@ import { api, ApiError } from "@/lib/api/client";
 import { normalizePlan, type Plan } from "@/lib/plan";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 export function SubscribeButton() {
   const router = useRouter();
@@ -39,6 +40,12 @@ export function SubscribeButton() {
   }, []);
 
   async function startCheckout() {
+    trackAnalyticsEvent("begin_checkout", {
+      currency: "EUR",
+      value: 4.99,
+      plan: "pro",
+      account_state: plan === "signed-out" ? "signed_out" : "signed_in",
+    });
     if (plan === "signed-out") {
       router.push(`/login?next=${encodeURIComponent("/pricing")}`);
       return;
@@ -56,6 +63,7 @@ export function SubscribeButton() {
   }
 
   async function manageBilling() {
+    trackAnalyticsEvent("billing_portal_opened", { plan: "pro" });
     setBusy(true);
     try {
       const session = await api.billing.createPortalSession();

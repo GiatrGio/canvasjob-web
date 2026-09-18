@@ -5,6 +5,7 @@ import type { Provider } from "@supabase/supabase-js";
 import { Chrome, Linkedin, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { safeInternalPath } from "@/lib/auth-redirect";
 import { createClient } from "@/lib/supabase/client";
 
@@ -28,6 +29,10 @@ export function SocialAuthButtons() {
   const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
 
   async function handleOAuth(provider: Provider) {
+    trackAnalyticsEvent(
+      window.location.pathname === "/signup" ? "sign_up_started" : "login_started",
+      { method: provider },
+    );
     setLoadingProvider(provider);
     const supabase = createClient();
     const redirectPath = getRedirectPath();
