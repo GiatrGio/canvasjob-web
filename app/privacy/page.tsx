@@ -282,6 +282,18 @@ export default function PrivacyPolicyPage() {
               browser until it is replaced, cleared, or the extension is removed.
             </p>
             <p>
+              The extension also keeps a record of the job postings you have opened, so
+              that when a job you have already looked at appears again it can show you
+              what it told you about it last time. That record holds the job&apos;s
+              identifier and title,
+              when and how often you opened it, and a short summary of the last
+              evaluation and tracker status for that job. It covers only job postings you
+              opened, it is capped in size and expires over time, and it{" "}
+              <span className="text-foreground">stays on your device</span> — it is never
+              sent to canvasjob&apos;s servers. Clearing the extension&apos;s data or
+              removing the extension deletes it.
+            </p>
+            <p>
               If a supported job page changes in a way that prevents the extension from
               reading it, the extension automatically sends us a diagnostic report so we
               can fix the breakage quickly. As described under{" "}
